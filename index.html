@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luke's Card Game</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
+    background: linear-gradient(135deg, #6dd5fa, #ffb88c);
+    padding: 16px;
+  }
+
+  /* Header */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  h1 { margin: 0; color: #2b2b52; text-shadow: 1px 1px 0 #fff; font-size: 1.4em; }
+  .score { font-size: 1.4em; font-weight: bold; color: #27ae60; }
+  .btn-new {
+    background: #e84393; color: white; border: none;
+    border-radius: 10px; padding: 8px 16px; font-size: 0.95em;
+    cursor: pointer; font-family: inherit; box-shadow: 0 4px 0 #a02d66;
+  }
+  .btn-new:active { transform: translateY(3px); box-shadow: none; }
+
+  .section-title {
+    font-size: 1.05em; font-weight: bold; color: #2b2b52;
+    text-align: center; margin: 10px 0 8px;
+  }
+
+  /* Customer cards */
+  .customers { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .customer-card {
+    width: 270px; background: white; border-radius: 18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    padding: 18px 14px; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    border: 4px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .customer-card:hover { transform: translateY(-4px); }
+  .customer-card.selected { border-color: #27ae60; box-shadow: 0 0 0 4px #27ae60; }
+  .c-emoji  { font-size: 144px; line-height: 1; }
+  .c-name   { font-size: 1em; font-weight: bold; color: #2b2b52; }
+  .c-dish   { font-size: 0.85em; color: #555; }
+  .c-price  {
+    background: #27ae60; color: white;
+    padding: 3px 12px; border-radius: 20px; font-size: 0.9em; font-weight: bold;
+  }
+  .recipe-label { font-size: 0.78em; color: #888; margin-top: 4px; }
+  .recipe-items { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+  .recipe-item {
+    background: #f0f0f0; border-radius: 8px;
+    padding: 3px 7px; font-size: 0.8em; color: #333;
+  }
+
+  /* Ingredient hand */
+  .hand {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center; max-width: 720px; margin: 0 auto;
+  }
+  .ing-card {
+    width: 150px; min-height: 190px;
+    background: white; border-radius: 14px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    padding: 14px 8px; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    border: 4px solid transparent;
+    transition: transform 0.1s, border-color 0.1s;
+    text-align: center;
+  }
+  .ing-card:hover { transform: translateY(-3px); }
+  .ing-card.selected { border-color: #f39c12; box-shadow: 0 0 0 3px #f39c12; }
+  .i-emoji { font-size: 104px; line-height: 1; }
+  .i-name  { font-size: 0.9em; font-weight: bold; color: #2b2b52; }
+
+  /* Action buttons */
+  .actions { display: flex; gap: 12px; justify-content: center; margin: 14px 0 6px; }
+  .btn-serve {
+    background: #e84393; box-shadow: 0 5px 0 #a02d66;
+    color: white; border: none; border-radius: 14px;
+    padding: 12px 28px; font-size: 1.1em; cursor: pointer; font-family: inherit;
+  }
+  .btn-discard {
+    background: #7f8c8d; box-shadow: 0 5px 0 #555;
+    color: white; border: none; border-radius: 14px;
+    padding: 12px 24px; font-size: 1.1em; cursor: pointer; font-family: inherit;
+  }
+  .btn-serve:active, .btn-discard:active { transform: translateY(4px); box-shadow: none; }
+
+  /* Status */
+  .status {
+    text-align: center; font-size: 1.05em; font-weight: bold;
+    color: #2b2b52; min-height: 1.6em; margin-top: 4px;
+    transition: color 0.2s;
+  }
+  .status.ok    { color: #27ae60; }
+  .status.error { color: #e74c3c; }
+
+  @keyframes pop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+  .pop { animation: pop 0.3s ease; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🍽️ Luke's Card Game</h1>
+  <div class="score">💰 $<span id="score">0</span></div>
+  <button class="btn-new" onclick="newGame()">🔄 New Game</button>
+</div>
+
+<div class="section-title">👥 Customers — tap one to pick them!</div>
+<div class="customers" id="customers"></div>
+
+<div class="section-title">🥘 Your 10 Ingredients — tap to select!</div>
+<div class="hand" id="hand"></div>
+
+<div class="actions">
+  <button class="btn-serve"   onclick="serve()">          🍽️ Serve!            </button>
+  <button class="btn-discard" onclick="discardSelected()"> 🗑️ Discard Selected  </button>
+</div>
+<div class="status" id="status">Pick a customer, then tap their ingredients!</div>
+
+<script>
+// ── 20 DISHES (2–4 ingredients each) ─────────────────────────────────────────
+const dishes = [
+  { emoji:"🥗",  name:"Avocado Roll",        price:15, recipe:["Rice","Nori","Avocado"] },
+  { emoji:"🍣",  name:"Salmon Nigiri",        price:18, recipe:["Rice","Salmon"] },
+  { emoji:"🥒",  name:"Cucumber Roll",        price:12, recipe:["Rice","Nori","Cucumber"] },
+  { emoji:"🐙",  name:"Octopus Bomb",         price:22, recipe:["Rice","Octopus","Soy Sauce"] },
+  { emoji:"🦞",  name:"Royal Lobster Roll",   price:75, recipe:["Rice","Nori","Lobster","Yuzu"] },
+  { emoji:"🦄",  name:"Unicorn Roll",         price:45, recipe:["Rice","Nori","Avocado","Salmon Roe"] },
+  { emoji:"🌶️", name:"Spicy Tuna Roll",      price:20, recipe:["Rice","Nori","Tuna","Chilli"] },
+  { emoji:"🐡",  name:"Fugu Sushi",           price:55, recipe:["Rice","Fugu","Wasabi"] },
+  { emoji:"🦀",  name:"Crab Temaki",          price:30, recipe:["Rice","Nori","Crab"] },
+  { emoji:"🦐",  name:"Shrimp Tempura Roll",  price:25, recipe:["Rice","Nori","Shrimp","Sesame Oil"] },
+  { emoji:"💣",  name:"Wasabi Bomb",          price:18, recipe:["Rice","Wasabi","Soy Sauce"] },
+  { emoji:"🐟",  name:"Tuna Tataki",          price:28, recipe:["Tuna","Garlic","Soy Sauce","Yuzu"] },
+  { emoji:"🥚",  name:"Tamagoyaki Nigiri",    price:14, recipe:["Rice","Egg","Soy Sauce"] },
+  { emoji:"🦑",  name:"Squid Ink Roll",       price:20, recipe:["Rice","Nori","Squid"] },
+  { emoji:"🦪",  name:"Oyster Shot",          price:35, recipe:["Oyster","Yuzu","Salt"] },
+  { emoji:"🍋",  name:"Yuzu Salmon",          price:22, recipe:["Salmon","Yuzu","Salt"] },
+  { emoji:"🧄",  name:"Garlic Tuna Bowl",     price:19, recipe:["Rice","Tuna","Garlic","Sesame Oil"] },
+  { emoji:"🫐",  name:"Ikura Special",        price:28, recipe:["Rice","Salmon Roe","Soy Sauce"] },
+  { emoji:"🌈",  name:"Rainbow Roll",         price:40, recipe:["Rice","Tuna","Salmon","Avocado"] },
+  { emoji:"👑",  name:"Chef's Supreme",       price:99, recipe:["Lobster","Fugu","Crab","Wasabi"] },
+];
+
+// ── INGREDIENTS (weight = how often they appear — higher = easier to find) ───
+const ingredients = [
+  { emoji:"🍚",  name:"Rice",        weight:5 },  // very common
+  { emoji:"🌊",  name:"Nori",        weight:5 },
+  { emoji:"🥑",  name:"Avocado",     weight:4 },
+  { emoji:"🥒",  name:"Cucumber",    weight:4 },
+  { emoji:"🥚",  name:"Egg",         weight:4 },
+  { emoji:"🧂",  name:"Salt",        weight:4 },
+  { emoji:"🫙",  name:"Soy Sauce",   weight:4 },
+  { emoji:"🧄",  name:"Garlic",      weight:3 },
+  { emoji:"🌶️", name:"Chilli",      weight:3 },
+  { emoji:"🫚",  name:"Sesame Oil",  weight:3 },
+  { emoji:"🍣",  name:"Salmon",      weight:3 },
+  { emoji:"🐟",  name:"Tuna",        weight:3 },
+  { emoji:"🦑",  name:"Squid",       weight:3 },
+  { emoji:"🌿",  name:"Wasabi",      weight:3 },
+  { emoji:"🍋",  name:"Yuzu",        weight:2 },
+  { emoji:"🦐",  name:"Shrimp",      weight:2 },
+  { emoji:"🐙",  name:"Octopus",     weight:2 },
+  { emoji:"🫐",  name:"Salmon Roe",  weight:2 },
+  { emoji:"🦀",  name:"Crab",        weight:5 },
+  { emoji:"🦞",  name:"Lobster",     weight:5 },
+  { emoji:"🐡",  name:"Fugu",        weight:1 },
+  { emoji:"🦪",  name:"Oyster",      weight:1 },
+];
+
+// Build weighted pool: each ingredient appears weight times
+const pool = [];
+ingredients.forEach(ing => {
+  for (let i = 0; i < ing.weight; i++) pool.push(ing);
+});
+
+// ── CUSTOMERS ────────────────────────────────────────────────────────────────
+const customerList = [
+  { emoji:"👑",   name:"The King"        },
+  { emoji:"🤠",   name:"Cowboy Carl"     },
+  { emoji:"🧙",   name:"Wizard Zorp"     },
+  { emoji:"🦸",   name:"Captain Strong"  },
+  { emoji:"🧜",   name:"Mermaid Marina"  },
+  { emoji:"🐼",   name:"Panda Pete"      },
+  { emoji:"🧛",   name:"Count Fangula"   },
+  { emoji:"👸",   name:"Princess Sparkle"},
+  { emoji:"🤖",   name:"Robot 3000"      },
+  { emoji:"🦊",   name:"Foxy"            },
+  { emoji:"🧑‍🚀", name:"Astronaut Al"   },
+  { emoji:"🐉",   name:"Dragon Dave"     },
+  { emoji:"🏄",   name:"Surfer Dude"     },
+  { emoji:"🧑‍🎤", name:"Rockstar Rex"   },
+  { emoji:"👷",   name:"Builder Bob"     },
+  { emoji:"🦄",   name:"Uni the Unicorn" },
+];
+
+// ── GAME STATE ───────────────────────────────────────────────────────────────
+let hand = [];
+let activeCustomers = [];
+let selectedCustomer = null;
+let selectedIdxs = new Set();
+let score = 0;
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function drawIngredient() { return pick(pool); }
+
+function dealCustomer(usedDishNames = []) {
+  const customer = pick(customerList);
+  const available = dishes.filter(d => !usedDishNames.includes(d.name));
+  const dish = pick(available.length ? available : dishes);
+  return { customer, dish };
+}
+
+function newGame() {
+  score = 0;
+  selectedCustomer = null;
+  selectedIdxs = new Set();
+  document.getElementById("score").textContent = "0";
+
+  activeCustomers = [];
+  const usedDishes = [];
+  for (let i = 0; i < 3; i++) {
+    const c = dealCustomer(usedDishes);
+    usedDishes.push(c.dish.name);
+    activeCustomers.push(c);
+  }
+
+  hand = Array.from({ length: 10 }, drawIngredient);
+  setStatus("Pick a customer, then tap their ingredients!", "");
+  render();
+}
+
+// ── RENDERING ────────────────────────────────────────────────────────────────
+function ingEmoji(name) {
+  const i = ingredients.find(x => x.name === name);
+  return i ? i.emoji : "🍽️";
+}
+
+function renderCustomers() {
+  const el = document.getElementById("customers");
+  el.innerHTML = "";
+  activeCustomers.forEach((c, idx) => {
+    const div = document.createElement("div");
+    div.className = "customer-card" + (selectedCustomer === idx ? " selected" : "");
+    div.onclick = () => selectCustomer(idx);
+
+    const recipeHtml = c.dish.recipe
+      .map(r => `<span class="recipe-item">${ingEmoji(r)} ${r}</span>`)
+      .join("");
+
+    div.innerHTML = `
+      <div class="c-emoji">${c.customer.emoji}</div>
+      <div class="c-name">${c.customer.name}</div>
+      <div class="c-dish">${c.dish.emoji} ${c.dish.name}</div>
+      <div class="c-price">💰 $${c.dish.price}</div>
+      <div class="recipe-label">Recipe needs:</div>
+      <div class="recipe-items">${recipeHtml}</div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+function renderHand() {
+  const el = document.getElementById("hand");
+  el.innerHTML = "";
+  hand.forEach((ing, idx) => {
+    const div = document.createElement("div");
+    div.className = "ing-card" + (selectedIdxs.has(idx) ? " selected" : "");
+    div.onclick = () => toggleIng(idx);
+    div.innerHTML = `<div class="i-emoji">${ing.emoji}</div><div class="i-name">${ing.name}</div>`;
+    el.appendChild(div);
+  });
+}
+
+function render() { renderCustomers(); renderHand(); }
+
+// ── ACTIONS ──────────────────────────────────────────────────────────────────
+function selectCustomer(idx) {
+  selectedCustomer = (selectedCustomer === idx) ? null : idx;
+  renderCustomers();
+}
+
+function toggleIng(idx) {
+  selectedIdxs.has(idx) ? selectedIdxs.delete(idx) : selectedIdxs.add(idx);
+  renderHand();
+}
+
+function serve() {
+  if (selectedCustomer === null) { setStatus("❌ Tap a customer first!", "error"); return; }
+  if (selectedIdxs.size === 0)   { setStatus("❌ Tap some ingredients!", "error"); return; }
+
+  const { customer, dish } = activeCustomers[selectedCustomer];
+  const chosen   = [...selectedIdxs].map(i => hand[i].name).sort();
+  const required = [...dish.recipe].sort();
+  const match    = required.length === chosen.length && required.every((r, i) => r === chosen[i]);
+
+  if (match) {
+    score += dish.price;
+    document.getElementById("score").textContent = score;
+    setStatus(`🎉 ${customer.name} loved it! +$${dish.price}`, "ok");
+
+    // Remove used ingredients (high-index first so splicing doesn't shift)
+    [...selectedIdxs].sort((a,b) => b - a).forEach(i => hand.splice(i, 1));
+    while (hand.length < 10) hand.push(drawIngredient());
+
+    // Replace served customer
+    const usedDishes = activeCustomers
+      .filter((_,i) => i !== selectedCustomer)
+      .map(c => c.dish.name);
+    activeCustomers[selectedCustomer] = dealCustomer(usedDishes);
+
+    selectedCustomer = null;
+    selectedIdxs = new Set();
+    render();
+  } else {
+    setStatus(`❌ Wrong recipe! Check what ${customer.name} wants.`, "error");
+  }
+}
+
+function discardSelected() {
+  if (selectedIdxs.size === 0) { setStatus("❌ Tap ingredients to discard first!", "error"); return; }
+  const n = selectedIdxs.size;
+  [...selectedIdxs].sort((a,b) => b - a).forEach(i => hand.splice(i, 1));
+  while (hand.length < 10) hand.push(drawIngredient());
+  selectedIdxs = new Set();
+  setStatus(`🗑️ Swapped ${n} ingredient${n > 1 ? "s" : ""} for new ones!`, "");
+  renderHand();
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById("status");
+  el.textContent = msg;
+  el.className = "status " + type;
+}
+
+newGame();
+</script>
+</body>
+</html>
