@@ -607,6 +607,7 @@ const ING_RARITY = {
   rare:      ["Octopus","Crab","Salmon Roe","Seafood Market","Vegetable Farm","Prosciutto"],
   legendary: ["Lobster","Truffle"],
 };
+const SUSHI_ING   = { common:["Rice","Nori","Avocado","Cucumber","Soy Sauce"], uncommon:["Salmon","Tuna","Shrimp","Wasabi","Chilli"], rare:["Octopus","Crab","Salmon Roe","Seafood Market","Vegetable Farm"], legendary:["Lobster"] };
 const ITALIAN_ING = { common:["Pasta","Tomato","Basil"], uncommon:["Mozzarella","Olive Oil"], rare:["Prosciutto"], legendary:["Truffle"] };
 const RARITY_STYLE = {
   common:    { bg:"#eee",    border:"#bbb",    text:"#555",    label:"Common" },
@@ -625,31 +626,31 @@ const PACK_COST = 5;
 const packTypes = [
   {
     id:"ingredient", name:"Ingredient Pack", emoji:"🥢",
-    desc:"5 ingredient cards\nCommon → chance of Rare",
+    desc:"5 sushi ingredient cards\nCommon → chance of Rare",
     bg:"linear-gradient(160deg,#d4601a,#9a3f0a)",
     draw() {
       return [
-        drawIngCard("common"), drawIngCard("common"), drawIngCard("common"),
-        drawIngCard("uncommon"),
-        Math.random()<0.12 ? drawIngCard("legendary") : drawIngCard("rare"),
+        drawSushiCard("common"), drawSushiCard("common"), drawSushiCard("common"),
+        drawSushiCard("uncommon"),
+        Math.random()<0.12 ? drawSushiCard("legendary") : drawSushiCard("rare"),
       ];
     }
   },
   {
-    id:"premium", name:"Chef's Bundle", emoji:"⭐",
-    desc:"4 ingredients + 1 customer\nBetter rarity chances",
-    bg:"linear-gradient(160deg,#7b2f9e,#4a1060)",
+    id:"customer", name:"Customer Pack", emoji:"👥",
+    desc:"3 customer cards\nExpand your restaurant roster",
+    bg:"linear-gradient(160deg,#2c3e8e,#1a1040)",
     draw() {
       return [
-        drawIngCard("common"), drawIngCard("uncommon"), drawIngCard("rare"),
-        Math.random()<0.18 ? drawIngCard("legendary") : drawIngCard("rare"),
+        { type:"customer", ...pick(customerList), rarity:"common" },
+        { type:"customer", ...pick(customerList), rarity:"uncommon" },
         { type:"customer", ...pick(customerList), rarity:"rare" },
       ];
     }
   },
   {
     id:"italian", name:"Italian Expansion", emoji:"🍝",
-    desc:"5 Italian cards\nPasta, cheese, truffles & more",
+    desc:"5 Italian ingredient cards\nPasta, cheese, truffles & more",
     bg:"linear-gradient(160deg,#c0392b,#27ae60)",
     draw() {
       return [
@@ -663,6 +664,12 @@ const packTypes = [
 
 function drawIngCard(rarity) {
   const pool = ING_RARITY[rarity] || ING_RARITY.common;
+  const name = pick(pool);
+  return { type:"ingredient", ...ingredients.find(i=>i.name===name), rarity };
+}
+
+function drawSushiCard(rarity) {
+  const pool = SUSHI_ING[rarity] || SUSHI_ING.common;
   const name = pick(pool);
   return { type:"ingredient", ...ingredients.find(i=>i.name===name), rarity };
 }
