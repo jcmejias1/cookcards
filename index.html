@@ -328,6 +328,21 @@
   }
   .garden-no-bonus { color:rgba(255,255,255,0.45); font-size:0.8em; font-style:italic; }
   .garden-full-msg { color:#fb923c; font-size:0.75em; font-weight:700; min-height:1.1em; margin-top:6px; text-align:center; }
+  .garden-plot.locked {
+    background:rgba(0,0,0,0.28); border:2px dashed rgba(255,255,255,0.12);
+    color:rgba(255,255,255,0.28); font-size:0.62em; font-weight:700; cursor:default;
+  }
+  .garden-upgrade-box { background:rgba(142,68,173,0.2); border:1px solid rgba(142,68,173,0.5); border-radius:12px; padding:12px; }
+  .garden-level-label { color:rgba(255,255,255,0.8); font-size:0.78em; font-weight:800; margin-bottom:8px; }
+  .btn-garden-upgrade {
+    width:100%; background:#8e44ad; color:white; border:none; border-radius:999px;
+    padding:9px 16px; font-size:0.85em; font-weight:900;
+    cursor:pointer; font-family:inherit; box-shadow:0 4px 0 #6c3483;
+  }
+  .btn-garden-upgrade:hover:not(:disabled) { background:#7d3c98; }
+  .btn-garden-upgrade:active:not(:disabled) { transform:translateY(4px); box-shadow:none; }
+  .btn-garden-upgrade:disabled { background:#888; box-shadow:none; cursor:default; }
+  .garden-upgrade-note { color:#fb923c; font-size:0.7em; font-weight:700; margin-top:6px; text-align:center; min-height:1em; }
   .garden-owned-list { display:flex; flex-direction:column; gap:6px; max-height:68vh; overflow-y:auto; }
   .garden-owned-row {
     display:flex; align-items:center; gap:10px;
@@ -473,6 +488,10 @@
         <div class="garden-section-title">🌱 Garden Plots</div>
         <div class="garden-grid" id="garden-grid"></div>
         <div class="garden-full-msg" id="garden-full-msg"></div>
+      </div>
+      <div>
+        <div class="garden-section-title">⬆️ Upgrade Garden</div>
+        <div id="garden-upgrade-area"></div>
       </div>
       <div>
         <div class="garden-section-title">✨ Active Bonuses</div>
@@ -850,6 +869,25 @@ let gardenPlots = (() => {
 })();
 function saveGardenPlots() { localStorage.setItem("cookcards_garden_plots", JSON.stringify(gardenPlots)); }
 
+const GARDEN_UPGRADE_COSTS = [5, 10, 15, 20, 25];
+const GARDEN_CAPACITIES    = [3, 4, 5, 6, 7, 9]; // index = level (0–5)
+
+let gardenLevel = (() => {
+  const v = parseInt(localStorage.getItem("cookcards_garden_level")||"0", 10);
+  return isNaN(v) ? 0 : Math.max(0, Math.min(5, v));
+})();
+function saveGardenLevel() { localStorage.setItem("cookcards_garden_level", gardenLevel); }
+function gardenCapacity()  { return GARDEN_CAPACITIES[gardenLevel]; }
+function nextUpgradeCost() { return gardenLevel < 5 ? GARDEN_UPGRADE_COSTS[gardenLevel] : null; }
+
+function upgradeGarden() {
+  const cost = nextUpgradeCost();
+  if (!cost || !spendFromWallet(cost)) return;
+  gardenLevel++;
+  saveGardenLevel();
+  renderGardenScreen();
+}
+
 // ── WALLET ────────────────────────────────────────────────────────────────────
 const WALLET_KEY = "cookcards_wallet";
 const STARTING_WALLET = 15; // enough for 3 starter packs
@@ -914,6 +952,7 @@ function goToGarden() {
 
 function renderGardenScreen() {
   renderGardenGrid();
+  renderGardenUpgrade();
   renderGardenBonuses();
   renderGardenOwnedCards();
 }
@@ -921,10 +960,17 @@ function renderGardenScreen() {
 function renderGardenGrid() {
   const grid = document.getElementById("garden-grid");
   grid.innerHTML = "";
-  gardenPlots.forEach((name, idx) => {
+  const cap = gardenCapacity();
+  for (let idx = 0; idx < 9; idx++) {
     const plot = document.createElement("div");
-    if (name) {
-      const card = gardenCardTypes.find(c=>c.name===name);
+    if (idx >= cap) {
+      // locked — show which upgrade unlocks it
+      const unlocksAt = GARDEN_CAPACITIES.indexOf(idx + 1);
+      const hint = unlocksAt >= 0 ? `Upgrade ${unlocksAt}` : `Upgrade ${GARDEN_CAPACITIES.findIndex(c=>c>idx)}`;
+      plot.className = "garden-plot locked";
+      plot.innerHTML = `<div style="font-size:1.3em;opacity:0.4">🔒</div><div>${hint}</div>`;
+    } else if (gardenPlots[idx]) {
+      const card = gardenCardTypes.find(c=>c.name===gardenPlots[idx]);
       plot.className = "garden-plot planted";
       plot.innerHTML = `
         <button class="garden-plot-remove" onclick="event.stopPropagation();removePlot(${idx})">✕</button>
@@ -937,9 +983,30 @@ function renderGardenGrid() {
       plot.innerHTML = `<div style="font-size:1.4em;opacity:0.4">🪴</div><div>Empty</div>`;
     }
     grid.appendChild(plot);
-  });
-  const full = gardenPlots.every(p=>p!==null);
-  document.getElementById("garden-full-msg").textContent = full ? "🌳 Garden full! Remove a plant to make room." : "";
+  }
+  const full = gardenPlots.slice(0, cap).every(p=>p!==null);
+  document.getElementById("garden-full-msg").textContent = full && cap < 9 ? "🌳 Capacity full! Upgrade to unlock more plots." : full && cap === 9 ? "🌳 Garden full!" : "";
+}
+
+function renderGardenUpgrade() {
+  const area = document.getElementById("garden-upgrade-area");
+  const cap = gardenCapacity();
+  const cost = nextUpgradeCost();
+  if (!cost) {
+    area.innerHTML = `<div class="garden-upgrade-box"><div class="garden-level-label">🌟 Max level! All 9 plots unlocked.</div></div>`;
+    return;
+  }
+  const nextCap = GARDEN_CAPACITIES[gardenLevel + 1];
+  const canAfford = wallet >= cost;
+  area.innerHTML = `
+    <div class="garden-upgrade-box">
+      <div class="garden-level-label">Level ${gardenLevel}/5 · ${cap} plots unlocked</div>
+      <button class="btn-garden-upgrade" onclick="upgradeGarden()" ${canAfford?"":"disabled"}>
+        ⬆️ Upgrade ($${cost}) → ${nextCap} plots
+      </button>
+      <div class="garden-upgrade-note">${canAfford ? "" : `Need $${cost} (have $${wallet})`}</div>
+    </div>
+  `;
 }
 
 function renderGardenBonuses() {
@@ -969,7 +1036,8 @@ function renderGardenOwnedCards() {
     list.innerHTML = `<div class="garden-empty-msg">No garden cards yet!<br>Buy a 🌿 Garden Pack from the shop.</div>`;
     return;
   }
-  const full = gardenPlots.every(p=>p!==null);
+  const cap = gardenCapacity();
+  const full = gardenPlots.slice(0, cap).every(p=>p!==null);
   gardenCardTypes.forEach(gcard => {
     const qty = owned[gcard.name] || 0;
     if (qty === 0) return;
@@ -992,8 +1060,10 @@ function renderGardenOwnedCards() {
 }
 
 function plantGardenCard(name) {
-  const emptyIdx = gardenPlots.indexOf(null);
-  if (emptyIdx === -1) { document.getElementById("garden-full-msg").textContent = "🌳 Garden full! Remove a plant to make room."; return; }
+  const cap = gardenCapacity();
+  let emptyIdx = -1;
+  for (let i = 0; i < cap; i++) { if (!gardenPlots[i]) { emptyIdx = i; break; } }
+  if (emptyIdx === -1) { document.getElementById("garden-full-msg").textContent = "🌳 Capacity full! Upgrade to unlock more plots."; return; }
   const owned = collection.garden || {};
   if ((owned[name]||0) <= 0) return;
   owned[name]--;
