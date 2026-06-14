@@ -292,35 +292,76 @@
 
   /* ── FARM SCREEN ────────────────────────────────────────────────────────────── */
   #screen-farm { align-items: center; background: rgba(0,0,0,0.45); padding-bottom: 40px; }
-  .farm-body { width:100%; max-width:960px; display:flex; flex-direction:column; align-items:center; gap:28px; padding:0 20px; }
-  .farm-chicken-grid { display:flex; flex-wrap:wrap; gap:18px; justify-content:center; }
-  .farm-chicken {
-    width:148px; border-radius:18px; padding:18px 12px 14px;
-    display:flex; flex-direction:column; align-items:center; gap:8px;
-    box-shadow:0 6px 20px rgba(0,0,0,0.25); transition:transform 0.15s;
+  .farm-body { width:100%; max-width:960px; display:flex; gap:24px; align-items:flex-start; padding:0 20px; }
+  .farm-left  { flex:0 0 300px; display:flex; flex-direction:column; gap:14px; }
+  .farm-right { flex:1; min-width:0; display:flex; flex-direction:column; gap:14px; align-items:center; }
+  .farm-section-title { font-size:0.92em; font-weight:900; color:white; text-shadow:0 2px 6px rgba(0,0,0,.5); }
+
+  /* animal garden */
+  .farm-garden-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .farm-garden-plot {
+    aspect-ratio:1; border-radius:12px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:3px; padding:6px; cursor:default;
   }
-  .farm-chicken.ready   { background:rgba(240,255,245,0.96); border:3px solid #27ae60; }
-  .farm-chicken.waiting { background:rgba(253,243,227,0.9);  border:3px solid rgba(180,150,100,0.5); }
-  .farm-chicken.ready:hover { transform:translateY(-4px); }
-  .chicken-emoji  { font-size:3.2em; line-height:1; }
-  .chicken-label  { font-size:0.72em; font-weight:800; color:#3d2b1f; }
+  .farm-garden-plot.fp-empty   { background:rgba(139,115,85,0.4); border:2px dashed rgba(255,255,255,0.28); }
+  .farm-garden-plot.fp-planted { background:rgba(39,174,96,0.2);  border:2px solid rgba(39,174,96,0.55); }
+  .fp-emoji { font-size:1.8em; line-height:1; }
+  .fp-name  { font-size:0.5em; font-weight:900; color:white; text-align:center; text-shadow:0 1px 3px rgba(0,0,0,.5); }
+  .fp-rate  { font-size:0.44em; color:rgba(255,255,255,0.65); text-align:center; }
+  .farm-feed-bar {
+    background:rgba(253,243,227,0.92); border-radius:10px; padding:8px 14px;
+    font-size:0.85em; font-weight:900; color:#3d2b1f; text-align:center;
+    border:2px solid #c9973d;
+  }
+
+  /* seed shop */
+  .farm-seed-list { display:flex; flex-direction:column; gap:5px; }
+  .farm-seed-row  { display:flex; align-items:center; gap:8px; background:rgba(253,243,227,0.9); border-radius:8px; padding:5px 8px; }
+  .farm-seed-emoji { font-size:1.4em; line-height:1; flex-shrink:0; }
+  .farm-seed-info  { flex:1; min-width:0; }
+  .farm-seed-name  { font-size:0.76em; font-weight:900; color:#3d2b1f; }
+  .farm-seed-rate  { font-size:0.62em; color:#7a6255; font-weight:700; }
+  .btn-plant-seed {
+    background:#27ae60; color:white; border:none; border-radius:999px;
+    padding:3px 10px; font-size:0.7em; font-weight:900;
+    cursor:pointer; font-family:inherit; white-space:nowrap;
+  }
+  .btn-plant-seed:hover:not(:disabled) { background:#1a9e50; }
+  .btn-plant-seed:disabled { background:#aaa; cursor:default; }
+
+  /* chickens */
+  .farm-chicken-grid { display:flex; flex-wrap:wrap; gap:14px; justify-content:center; }
+  .farm-chicken {
+    width:140px; border-radius:18px; padding:16px 10px 12px;
+    display:flex; flex-direction:column; align-items:center; gap:7px;
+    box-shadow:0 5px 18px rgba(0,0,0,0.22); transition:transform 0.15s;
+  }
+  .farm-chicken.fc-ready    { background:rgba(240,255,245,0.96); border:3px solid #27ae60; }
+  .farm-chicken.fc-hungry   { background:rgba(255,248,240,0.96); border:3px solid #e67e22; }
+  .farm-chicken.fc-waiting  { background:rgba(253,243,227,0.9);  border:3px solid rgba(180,150,100,0.45); }
+  .farm-chicken.fc-ready:hover  { transform:translateY(-4px); }
+  .farm-chicken.fc-hungry:hover { transform:translateY(-4px); }
+  .chicken-emoji { font-size:3em; line-height:1; }
+  .chicken-label { font-size:0.7em; font-weight:800; color:#3d2b1f; }
   .btn-feed {
     background:#27ae60; color:white; border:none; border-radius:999px;
-    padding:6px 14px; font-size:0.78em; font-weight:900;
+    padding:5px 12px; font-size:0.76em; font-weight:900;
     cursor:pointer; font-family:inherit; box-shadow:0 3px 0 #1a7a42;
   }
   .btn-feed:active { transform:translateY(3px); box-shadow:none; }
-  .chicken-timer { font-size:0.8em; font-weight:800; color:#9a7050; letter-spacing:0.03em; }
+  .btn-feed-nofeed { background:#e67e22; color:white; border:none; border-radius:999px; padding:5px 10px; font-size:0.7em; font-weight:800; cursor:default; font-family:inherit; opacity:0.8; }
+  .chicken-timer { font-size:0.76em; font-weight:800; color:#9a7050; }
+
   .farm-buy-box { display:flex; flex-direction:column; align-items:center; gap:8px; }
   .btn-buy-chicken {
     background:#e67e22; color:white; border:none; border-radius:999px;
-    padding:12px 34px; font-size:1em; font-weight:900;
+    padding:11px 30px; font-size:0.95em; font-weight:900;
     cursor:pointer; font-family:inherit; box-shadow:0 5px 0 #b85a10;
   }
   .btn-buy-chicken:hover:not(:disabled) { background:#cf6d17; }
   .btn-buy-chicken:active:not(:disabled) { transform:translateY(5px); box-shadow:none; }
   .btn-buy-chicken:disabled { background:#999; box-shadow:none; cursor:default; }
-  .farm-buy-note { color:rgba(255,255,255,0.6); font-size:0.8em; font-weight:700; }
+  .farm-buy-note { color:rgba(255,255,255,0.6); font-size:0.78em; font-weight:700; text-align:center; }
   .btn-title-farm { background:#e67e22; color:white; box-shadow:0 6px 0 #b85a10; }
 
   /* ── GARDEN SCREEN ──────────────────────────────────────────────────────────── */
@@ -519,8 +560,20 @@
     <div class="wallet-pill" id="farm-wallet">💰 $0</div>
   </div>
   <div class="farm-body">
-    <div class="farm-chicken-grid" id="farm-chicken-grid"></div>
-    <div class="farm-buy-box" id="farm-buy-area"></div>
+    <!-- Animal garden (left) -->
+    <div class="farm-left">
+      <div class="farm-section-title">🌱 Animal Garden</div>
+      <div class="farm-garden-grid" id="farm-garden-grid"></div>
+      <div class="farm-feed-bar" id="farm-feed-display">🌾 Feed: 0 / 50</div>
+      <div class="farm-section-title">🌱 Buy Seeds</div>
+      <div class="farm-seed-list" id="farm-seed-shop"></div>
+    </div>
+    <!-- Chickens (right) -->
+    <div class="farm-right">
+      <div class="farm-section-title">🐔 Chickens</div>
+      <div class="farm-chicken-grid" id="farm-chicken-grid"></div>
+      <div class="farm-buy-box" id="farm-buy-area"></div>
+    </div>
   </div>
 </div>
 
@@ -994,7 +1047,16 @@ function goToShop() {
 }
 
 // ── FARM ──────────────────────────────────────────────────────────────────────
-const CHICKEN_COOLDOWN = 15000; // 15 seconds
+const CHICKEN_COOLDOWN = 15000; // ms between hungers
+const FARM_FEED_MAX    = 50;
+
+const FARM_CROPS = [
+  { emoji:"🌾", name:"Wheat",     cost:2,  rate:1/20,  label:"1 feed / 20s" },
+  { emoji:"🌽", name:"Corn",      cost:5,  rate:1/12,  label:"1 feed / 12s" },
+  { emoji:"🥕", name:"Carrot",    cost:10, rate:1/8,   label:"1 feed / 8s"  },
+  { emoji:"🫘", name:"Soybeans",  cost:20, rate:1/5,   label:"1 feed / 5s"  },
+  { emoji:"🌻", name:"Sunflower", cost:50, rate:1/3,   label:"1 feed / 3s"  },
+];
 
 let farmChickens = (() => {
   const v = parseInt(localStorage.getItem("cookcards_farm_chickens")||"1", 10);
@@ -1004,11 +1066,40 @@ let farmFedTimes = (() => {
   try { return JSON.parse(localStorage.getItem("cookcards_farm_fed")||"[]"); }
   catch { return []; }
 })();
+let farmGardenPlots = (() => {
+  try { return JSON.parse(localStorage.getItem("cookcards_farm_garden")||"null") || [null,null,null]; }
+  catch { return [null,null,null]; }
+})();
+let farmFeed = (() => {
+  const v = parseFloat(localStorage.getItem("cookcards_farm_feed")||"0");
+  return isNaN(v) ? 0 : v;
+})();
+let farmLastTick = (() => {
+  const v = parseInt(localStorage.getItem("cookcards_farm_tick")||"0", 10);
+  return v || Date.now();
+})();
 let farmTimerInterval = null;
 
 function saveFarm() {
   localStorage.setItem("cookcards_farm_chickens", farmChickens);
-  localStorage.setItem("cookcards_farm_fed", JSON.stringify(farmFedTimes));
+  localStorage.setItem("cookcards_farm_fed",      JSON.stringify(farmFedTimes));
+  localStorage.setItem("cookcards_farm_garden",   JSON.stringify(farmGardenPlots));
+  localStorage.setItem("cookcards_farm_feed",     farmFeed.toFixed(4));
+  localStorage.setItem("cookcards_farm_tick",     farmLastTick);
+}
+
+// Accumulate feed from planted crops since last tick (works offline too)
+function tickFarmFeed() {
+  const now  = Date.now();
+  const secs = (now - farmLastTick) / 1000;
+  farmLastTick = now;
+  let generated = 0;
+  farmGardenPlots.forEach(plot => {
+    if (!plot) return;
+    const crop = FARM_CROPS.find(c=>c.name===plot);
+    if (crop) generated += crop.rate * secs;
+  });
+  farmFeed = Math.min(FARM_FEED_MAX, farmFeed + generated);
 }
 
 function canFeedChicken(idx) {
@@ -1016,12 +1107,13 @@ function canFeedChicken(idx) {
 }
 
 function feedChicken(idx) {
-  if (!canFeedChicken(idx)) return;
+  if (!canFeedChicken(idx) || farmFeed < 1) return;
   farmFedTimes[idx] = Date.now();
+  farmFeed = Math.max(0, farmFeed - 1);
   addToWallet(1);
   saveFarm();
   renderChickens();
-  renderFarmBuyArea();
+  renderFeedDisplay();
 }
 
 function buyChicken() {
@@ -1033,9 +1125,25 @@ function buyChicken() {
   renderFarmBuyArea();
 }
 
+function plantCrop(cropName) {
+  const crop = FARM_CROPS.find(c=>c.name===cropName);
+  if (!crop) return;
+  const emptyIdx = farmGardenPlots.indexOf(null);
+  if (emptyIdx === -1 || !spendFromWallet(crop.cost)) return;
+  tickFarmFeed();
+  farmGardenPlots[emptyIdx] = cropName;
+  saveFarm();
+  renderFarmGarden();
+  renderSeedShop();
+}
+
 function goToFarm() {
+  tickFarmFeed(); // catch up offline feed
   showScreen("screen-farm");
   refreshWalletDisplays();
+  renderFarmGarden();
+  renderFeedDisplay();
+  renderSeedShop();
   renderChickens();
   renderFarmBuyArea();
   if (farmTimerInterval) clearInterval(farmTimerInterval);
@@ -1043,14 +1151,69 @@ function goToFarm() {
     if (!document.getElementById("screen-farm").classList.contains("active")) {
       clearInterval(farmTimerInterval); farmTimerInterval = null; return;
     }
+    tickFarmFeed();
     renderChickens();
+    renderFeedDisplay();
   }, 500);
 }
 
 function leaveFarm() {
+  tickFarmFeed();
+  saveFarm();
   if (farmTimerInterval) { clearInterval(farmTimerInterval); farmTimerInterval = null; }
   showScreen("screen-title");
   refreshWalletDisplays();
+}
+
+function renderFarmGarden() {
+  const grid = document.getElementById("farm-garden-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  farmGardenPlots.forEach((plot, idx) => {
+    const div = document.createElement("div");
+    if (plot) {
+      const crop = FARM_CROPS.find(c=>c.name===plot);
+      div.className = "farm-garden-plot fp-planted";
+      div.innerHTML = `
+        <div class="fp-emoji">${crop.emoji}</div>
+        <div class="fp-name">${crop.name}</div>
+        <div class="fp-rate">${crop.label}</div>
+      `;
+    } else {
+      div.className = "farm-garden-plot fp-empty";
+      div.innerHTML = `<div style="font-size:1.3em;opacity:0.35">🪴</div><div style="font-size:0.55em;color:rgba(255,255,255,0.35);font-weight:700">Empty</div>`;
+    }
+    grid.appendChild(div);
+  });
+}
+
+function renderFeedDisplay() {
+  const el = document.getElementById("farm-feed-display");
+  if (el) el.textContent = `🌾 Feed: ${Math.floor(farmFeed)} / ${FARM_FEED_MAX}`;
+}
+
+function renderSeedShop() {
+  const shop = document.getElementById("farm-seed-shop");
+  if (!shop) return;
+  shop.innerHTML = "";
+  const hasEmpty = farmGardenPlots.includes(null);
+  FARM_CROPS.forEach(crop => {
+    const canAfford = wallet >= crop.cost;
+    const row = document.createElement("div");
+    row.className = "farm-seed-row";
+    row.innerHTML = `
+      <div class="farm-seed-emoji">${crop.emoji}</div>
+      <div class="farm-seed-info">
+        <div class="farm-seed-name">${crop.name} ($${crop.cost})</div>
+        <div class="farm-seed-rate">${crop.label}</div>
+      </div>
+      <button class="btn-plant-seed" onclick="plantCrop('${crop.name}')"
+        ${(!hasEmpty || !canAfford) ? "disabled" : ""}>
+        ${!hasEmpty ? "Full" : !canAfford ? `$${crop.cost}` : "Plant"}
+      </button>
+    `;
+    shop.appendChild(row);
+  });
 }
 
 function renderChickens() {
@@ -1058,16 +1221,19 @@ function renderChickens() {
   if (!grid) return;
   grid.innerHTML = "";
   for (let i = 0; i < farmChickens; i++) {
-    const ready = canFeedChicken(i);
-    const remaining = ready ? 0 : Math.ceil((CHICKEN_COOLDOWN - (Date.now() - (farmFedTimes[i]||0))) / 1000);
+    const hungry  = canFeedChicken(i);
+    const hasFeed = farmFeed >= 1;
+    const remaining = hungry ? 0 : Math.ceil((CHICKEN_COOLDOWN - (Date.now() - (farmFedTimes[i]||0))) / 1000);
     const div = document.createElement("div");
-    div.className = "farm-chicken " + (ready ? "ready" : "waiting");
+    div.className = "farm-chicken " + (hungry && hasFeed ? "fc-ready" : hungry ? "fc-hungry" : "fc-waiting");
     div.innerHTML = `
-      <div class="chicken-emoji">${ready ? "🐔" : "😴"}</div>
+      <div class="chicken-emoji">${hungry && hasFeed ? "🐔" : hungry ? "😩" : "😴"}</div>
       <div class="chicken-label">Chicken ${i + 1}</div>
-      ${ready
+      ${hungry && hasFeed
         ? `<button class="btn-feed" onclick="feedChicken(${i})">🌾 Feed! (+$1)</button>`
-        : `<div class="chicken-timer">Ready in ${remaining}s</div>`
+        : hungry
+          ? `<button class="btn-feed-nofeed">No feed!</button>`
+          : `<div class="chicken-timer">Hungry in ${remaining}s</div>`
       }
     `;
     grid.appendChild(div);
