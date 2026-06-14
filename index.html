@@ -290,6 +290,39 @@
   .status.error { color:#b03020; }
   @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.12)} 100%{transform:scale(1)} }
 
+  /* ── FARM SCREEN ────────────────────────────────────────────────────────────── */
+  #screen-farm { align-items: center; background: rgba(0,0,0,0.45); padding-bottom: 40px; }
+  .farm-body { width:100%; max-width:960px; display:flex; flex-direction:column; align-items:center; gap:28px; padding:0 20px; }
+  .farm-chicken-grid { display:flex; flex-wrap:wrap; gap:18px; justify-content:center; }
+  .farm-chicken {
+    width:148px; border-radius:18px; padding:18px 12px 14px;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.25); transition:transform 0.15s;
+  }
+  .farm-chicken.ready   { background:rgba(240,255,245,0.96); border:3px solid #27ae60; }
+  .farm-chicken.waiting { background:rgba(253,243,227,0.9);  border:3px solid rgba(180,150,100,0.5); }
+  .farm-chicken.ready:hover { transform:translateY(-4px); }
+  .chicken-emoji  { font-size:3.2em; line-height:1; }
+  .chicken-label  { font-size:0.72em; font-weight:800; color:#3d2b1f; }
+  .btn-feed {
+    background:#27ae60; color:white; border:none; border-radius:999px;
+    padding:6px 14px; font-size:0.78em; font-weight:900;
+    cursor:pointer; font-family:inherit; box-shadow:0 3px 0 #1a7a42;
+  }
+  .btn-feed:active { transform:translateY(3px); box-shadow:none; }
+  .chicken-timer { font-size:0.8em; font-weight:800; color:#9a7050; letter-spacing:0.03em; }
+  .farm-buy-box { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .btn-buy-chicken {
+    background:#e67e22; color:white; border:none; border-radius:999px;
+    padding:12px 34px; font-size:1em; font-weight:900;
+    cursor:pointer; font-family:inherit; box-shadow:0 5px 0 #b85a10;
+  }
+  .btn-buy-chicken:hover:not(:disabled) { background:#cf6d17; }
+  .btn-buy-chicken:active:not(:disabled) { transform:translateY(5px); box-shadow:none; }
+  .btn-buy-chicken:disabled { background:#999; box-shadow:none; cursor:default; }
+  .farm-buy-note { color:rgba(255,255,255,0.6); font-size:0.8em; font-weight:700; }
+  .btn-title-farm { background:#e67e22; color:white; box-shadow:0 6px 0 #b85a10; }
+
   /* ── GARDEN SCREEN ──────────────────────────────────────────────────────────── */
   #screen-garden { align-items: center; background: rgba(0,0,0,0.45); padding-bottom: 32px; }
   .garden-body { width:100%; max-width:960px; display:flex; gap:24px; align-items:flex-start; padding:0 20px; }
@@ -447,6 +480,9 @@
       <button class="btn-title btn-title-shop" onclick="goToShop()">
         🎴 Buy Packs <span class="title-pack-cost">$5 each</span>
       </button>
+      <button class="btn-title btn-title-farm" onclick="goToFarm()">
+        🐔 Farm
+      </button>
       <button class="btn-title btn-title-garden" onclick="goToGarden()">
         🌿 Garden
       </button>
@@ -472,6 +508,19 @@
   </div>
   <div class="shop-body">
     <div id="pack-area"></div>
+  </div>
+</div>
+
+<!-- ── FARM SCREEN ────────────────────────────────────────────────────────────── -->
+<div id="screen-farm" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="leaveFarm()">← Back</button>
+    <div class="topbar-title">🐔 Farm</div>
+    <div class="wallet-pill" id="farm-wallet">💰 $0</div>
+  </div>
+  <div class="farm-body">
+    <div class="farm-chicken-grid" id="farm-chicken-grid"></div>
+    <div class="farm-buy-box" id="farm-buy-area"></div>
   </div>
 </div>
 
@@ -914,7 +963,7 @@ function spendFromWallet(amount) {
 }
 
 function refreshWalletDisplays() {
-  ["title-wallet","shop-wallet","sell-wallet","card-shop-wallet","garden-wallet"].forEach(id => {
+  ["title-wallet","shop-wallet","sell-wallet","card-shop-wallet","garden-wallet","farm-wallet"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.textContent = `💰 $${wallet}`;
   });
@@ -942,6 +991,100 @@ function goToShop() {
   showScreen("screen-shop");
   refreshWalletDisplays();
   renderPackSelection();
+}
+
+// ── FARM ──────────────────────────────────────────────────────────────────────
+const CHICKEN_COOLDOWN = 15000; // 15 seconds
+
+let farmChickens = (() => {
+  const v = parseInt(localStorage.getItem("cookcards_farm_chickens")||"1", 10);
+  return isNaN(v) ? 1 : Math.max(1, v);
+})();
+let farmFedTimes = (() => {
+  try { return JSON.parse(localStorage.getItem("cookcards_farm_fed")||"[]"); }
+  catch { return []; }
+})();
+let farmTimerInterval = null;
+
+function saveFarm() {
+  localStorage.setItem("cookcards_farm_chickens", farmChickens);
+  localStorage.setItem("cookcards_farm_fed", JSON.stringify(farmFedTimes));
+}
+
+function canFeedChicken(idx) {
+  return Date.now() - (farmFedTimes[idx]||0) >= CHICKEN_COOLDOWN;
+}
+
+function feedChicken(idx) {
+  if (!canFeedChicken(idx)) return;
+  farmFedTimes[idx] = Date.now();
+  addToWallet(1);
+  saveFarm();
+  renderChickens();
+  renderFarmBuyArea();
+}
+
+function buyChicken() {
+  const cost = farmChickens * 5;
+  if (!spendFromWallet(cost)) return;
+  farmChickens++;
+  saveFarm();
+  renderChickens();
+  renderFarmBuyArea();
+}
+
+function goToFarm() {
+  showScreen("screen-farm");
+  refreshWalletDisplays();
+  renderChickens();
+  renderFarmBuyArea();
+  if (farmTimerInterval) clearInterval(farmTimerInterval);
+  farmTimerInterval = setInterval(() => {
+    if (!document.getElementById("screen-farm").classList.contains("active")) {
+      clearInterval(farmTimerInterval); farmTimerInterval = null; return;
+    }
+    renderChickens();
+  }, 500);
+}
+
+function leaveFarm() {
+  if (farmTimerInterval) { clearInterval(farmTimerInterval); farmTimerInterval = null; }
+  showScreen("screen-title");
+  refreshWalletDisplays();
+}
+
+function renderChickens() {
+  const grid = document.getElementById("farm-chicken-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  for (let i = 0; i < farmChickens; i++) {
+    const ready = canFeedChicken(i);
+    const remaining = ready ? 0 : Math.ceil((CHICKEN_COOLDOWN - (Date.now() - (farmFedTimes[i]||0))) / 1000);
+    const div = document.createElement("div");
+    div.className = "farm-chicken " + (ready ? "ready" : "waiting");
+    div.innerHTML = `
+      <div class="chicken-emoji">${ready ? "🐔" : "😴"}</div>
+      <div class="chicken-label">Chicken ${i + 1}</div>
+      ${ready
+        ? `<button class="btn-feed" onclick="feedChicken(${i})">🌾 Feed! (+$1)</button>`
+        : `<div class="chicken-timer">Ready in ${remaining}s</div>`
+      }
+    `;
+    grid.appendChild(div);
+  }
+}
+
+function renderFarmBuyArea() {
+  const area = document.getElementById("farm-buy-area");
+  if (!area) return;
+  const cost = farmChickens * 5;
+  const canAfford = wallet >= cost;
+  area.innerHTML = `
+    <button class="btn-buy-chicken" onclick="buyChicken()" ${canAfford?"":"disabled"}>
+      🐣 Buy Chicken ($${cost})
+    </button>
+    <div class="farm-buy-note">${canAfford ? `You have ${farmChickens} chicken${farmChickens>1?"s":""}` : `Need $${cost} (have $${wallet})`}</div>
+  `;
 }
 
 function goToGarden() {
