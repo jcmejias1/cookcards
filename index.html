@@ -290,6 +290,65 @@
   .status.error { color:#b03020; }
   @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.12)} 100%{transform:scale(1)} }
 
+  /* ── GARDEN SCREEN ──────────────────────────────────────────────────────────── */
+  #screen-garden { align-items: center; background: rgba(0,0,0,0.45); padding-bottom: 32px; }
+  .garden-body { width:100%; max-width:960px; display:flex; gap:24px; align-items:flex-start; padding:0 20px; }
+  .garden-left { flex:0 0 300px; display:flex; flex-direction:column; gap:18px; }
+  .garden-right { flex:1; min-width:0; display:flex; flex-direction:column; gap:14px; }
+  .garden-section-title { font-size:1em; font-weight:900; color:white; text-shadow:0 2px 6px rgba(0,0,0,.5); margin-bottom:8px; }
+  .garden-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .garden-plot {
+    aspect-ratio:1; border-radius:14px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:3px; padding:8px;
+    transition:transform 0.15s, box-shadow 0.15s; position:relative;
+  }
+  .garden-plot.empty {
+    background:rgba(139,115,85,0.4); border:2px dashed rgba(255,255,255,0.3);
+    color:rgba(255,255,255,0.4); font-size:0.65em; font-weight:700; cursor:default;
+  }
+  .garden-plot.planted {
+    background:rgba(39,174,96,0.22); border:2px solid rgba(39,174,96,0.55);
+    box-shadow:0 4px 12px rgba(39,174,96,0.2); cursor:pointer;
+  }
+  .garden-plot.planted:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(39,174,96,0.35); }
+  .garden-plot-emoji { font-size:2em; line-height:1; }
+  .garden-plot-name { font-size:0.52em; font-weight:900; color:white; text-align:center; text-shadow:0 1px 3px rgba(0,0,0,.5); }
+  .garden-plot-effect { font-size:0.44em; color:rgba(255,255,255,0.65); text-align:center; line-height:1.2; }
+  .garden-plot-remove {
+    position:absolute; top:4px; right:4px; background:rgba(231,76,60,0.85);
+    color:white; border:none; border-radius:50%; width:18px; height:18px;
+    font-size:0.6em; cursor:pointer; display:none; align-items:center; justify-content:center; font-family:inherit;
+  }
+  .garden-plot.planted:hover .garden-plot-remove { display:flex; }
+  .garden-bonus-list { display:flex; flex-direction:column; gap:5px; }
+  .garden-bonus-item {
+    background:rgba(39,174,96,0.18); border:1px solid rgba(39,174,96,0.4);
+    border-radius:8px; padding:5px 10px; font-size:0.78em; font-weight:700; color:white;
+    text-shadow:0 1px 3px rgba(0,0,0,.4);
+  }
+  .garden-no-bonus { color:rgba(255,255,255,0.45); font-size:0.8em; font-style:italic; }
+  .garden-full-msg { color:#fb923c; font-size:0.75em; font-weight:700; min-height:1.1em; margin-top:6px; text-align:center; }
+  .garden-owned-list { display:flex; flex-direction:column; gap:6px; max-height:68vh; overflow-y:auto; }
+  .garden-owned-row {
+    display:flex; align-items:center; gap:10px;
+    background:rgba(253,243,227,0.92); border-radius:10px; padding:8px 12px;
+  }
+  .garden-card-emoji { font-size:1.8em; line-height:1; flex-shrink:0; }
+  .garden-card-info { flex:1; min-width:0; }
+  .garden-card-name { font-weight:900; font-size:0.85em; color:#3d2b1f; }
+  .garden-card-desc { font-size:0.68em; color:#7a6255; font-weight:700; }
+  .garden-card-qty { font-size:0.8em; font-weight:900; color:#7a6255; white-space:nowrap; }
+  .btn-plant {
+    background:#27ae60; color:white; border:none; border-radius:999px;
+    padding:4px 12px; font-size:0.75em; font-weight:900;
+    cursor:pointer; font-family:inherit; white-space:nowrap;
+  }
+  .btn-plant:hover { background:#1a9e50; }
+  .btn-plant:disabled { background:#aaa; cursor:default; }
+  .garden-empty-msg { color:rgba(255,255,255,0.5); font-size:0.85em; font-weight:700; text-align:center; padding:24px; }
+
+  .btn-title-garden { background:#27ae60; color:white; box-shadow:0 6px 0 #1a7a42; }
+
   /* ── CARD SHOP SCREEN ───────────────────────────────────────────────────────── */
   #screen-card-shop { align-items: center; background: rgba(0,0,0,0.45); padding-bottom: 32px; }
   .cshop-body {
@@ -373,6 +432,9 @@
       <button class="btn-title btn-title-shop" onclick="goToShop()">
         🎴 Buy Packs <span class="title-pack-cost">$5 each</span>
       </button>
+      <button class="btn-title btn-title-garden" onclick="goToGarden()">
+        🌿 Garden
+      </button>
       <button class="btn-title btn-title-cshop" onclick="goToCardShop()">
         🛒 Card Shop
       </button>
@@ -395,6 +457,32 @@
   </div>
   <div class="shop-body">
     <div id="pack-area"></div>
+  </div>
+</div>
+
+<!-- ── GARDEN SCREEN ──────────────────────────────────────────────────────────── -->
+<div id="screen-garden" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="showScreen('screen-title')">← Back</button>
+    <div class="topbar-title">🌿 Garden</div>
+    <div class="wallet-pill" id="garden-wallet">💰 $0</div>
+  </div>
+  <div class="garden-body">
+    <div class="garden-left">
+      <div>
+        <div class="garden-section-title">🌱 Garden Plots</div>
+        <div class="garden-grid" id="garden-grid"></div>
+        <div class="garden-full-msg" id="garden-full-msg"></div>
+      </div>
+      <div>
+        <div class="garden-section-title">✨ Active Bonuses</div>
+        <div class="garden-bonus-list" id="garden-bonus-list"></div>
+      </div>
+    </div>
+    <div class="garden-right">
+      <div class="garden-section-title">🃏 Your Garden Cards — click to plant!</div>
+      <div class="garden-owned-list" id="garden-owned-list"></div>
+    </div>
   </div>
 </div>
 
@@ -427,13 +515,13 @@
   <div class="sell-body">
     <div class="sell-section">
       <div class="sell-section-title">
-        🥗 Ingredients <span class="sell-price-tag">$1 each</span>
+        🥗 Ingredients <span class="sell-price-tag" id="sell-ing-price-label">$1 each</span>
       </div>
       <div class="sell-ing-list" id="sell-ing-list"></div>
     </div>
     <div class="sell-section">
       <div class="sell-section-title">
-        👥 Customers <span class="sell-price-tag">$3 each</span>
+        👥 Customers <span class="sell-price-tag" id="sell-cust-price-label">$3 each</span>
       </div>
       <div class="sell-cust-grid" id="sell-cust-grid"></div>
     </div>
@@ -451,7 +539,7 @@
       <div class="db-section">
         <div class="db-section-title">
           🥗 Ingredient Deck
-          <span class="db-count-badge" id="db-ing-count">0/100</span>
+          <span class="db-count-badge" id="db-ing-count">0/200</span>
         </div>
         <div class="db-ing-list" id="db-ing-list"></div>
       </div>
@@ -660,6 +748,18 @@ const packTypes = [
       ];
     }
   },
+  {
+    id:"garden", name:"Garden Pack", emoji:"🌿",
+    desc:"5 garden cards\nUpgrade your restaurant with bonuses",
+    bg:"linear-gradient(160deg,#27ae60,#145a32)",
+    draw() {
+      return [
+        drawGardenCard("common"), drawGardenCard("common"), drawGardenCard("common"),
+        drawGardenCard("uncommon"),
+        Math.random()<0.1 ? drawGardenCard("legendary") : drawGardenCard("rare"),
+      ];
+    }
+  },
 ];
 
 function drawIngCard(rarity) {
@@ -680,6 +780,34 @@ function drawItalianCard(rarity) {
   return { type:"ingredient", ...ingredients.find(i=>i.name===name), rarity };
 }
 
+// ── GARDEN CARD DATA ──────────────────────────────────────────────────────────
+const gardenCardTypes = [
+  { emoji:"🌱", name:"Sprout",     rarity:"common",    desc:"+5s game start time",         effect:"startTime",  value:5  },
+  { emoji:"🌿", name:"Herb",       rarity:"common",    desc:"Sell ingredients +$1 each",   effect:"sellBonus",  value:1  },
+  { emoji:"🌾", name:"Grain",      rarity:"common",    desc:"+1 card in starting hand",    effect:"handSize",   value:1  },
+  { emoji:"🌻", name:"Sunflower",  rarity:"common",    desc:"+$1 per correct order",       effect:"orderBonus", value:1  },
+  { emoji:"🌺", name:"Blossom",    rarity:"uncommon",  desc:"+10s game start time",        effect:"startTime",  value:10 },
+  { emoji:"🍀", name:"Clover",     rarity:"uncommon",  desc:"Packs cost $1 less",          effect:"packCost",   value:-1 },
+  { emoji:"🌼", name:"Daisy",      rarity:"uncommon",  desc:"Customers start with +1 patience", effect:"patience", value:1 },
+  { emoji:"🌳", name:"Oak Tree",   rarity:"rare",      desc:"+20s game start time",        effect:"startTime",  value:20 },
+  { emoji:"🎋", name:"Bamboo",     rarity:"rare",      desc:"+3 cards in starting hand",   effect:"handSize",   value:3  },
+  { emoji:"🌈", name:"Rainbow",    rarity:"legendary", desc:"Sell all cards for double",   effect:"sellDouble", value:1  },
+  { emoji:"🌙", name:"Moonflower", rarity:"legendary", desc:"+$5 per correct order",       effect:"orderBonus", value:5  },
+];
+
+const GARDEN_RARITY = {
+  common:    ["Sprout","Herb","Grain","Sunflower"],
+  uncommon:  ["Blossom","Clover","Daisy"],
+  rare:      ["Oak Tree","Bamboo"],
+  legendary: ["Rainbow","Moonflower"],
+};
+
+function drawGardenCard(rarity) {
+  const pool = GARDEN_RARITY[rarity] || GARDEN_RARITY.common;
+  const name = pick(pool);
+  return { type:"garden", ...gardenCardTypes.find(c=>c.name===name) };
+}
+
 // ── COLLECTION ────────────────────────────────────────────────────────────────
 const STARTER = {
   ingredients: { "Rice":12,"Nori":8,"Avocado":6,"Cucumber":5,"Soy Sauce":6,
@@ -688,14 +816,18 @@ const STARTER = {
   customers:   { "Cowboy Carl":3,"Panda Pete":3,"Surfer Dude":3,
                  "Grandma":3,"Foxy":3,"Captain Strong":3,
                  "Mermaid Marina":3,"Astronaut Al":3 },
+  garden:      {},
 };
 
 let collection = (() => {
   try {
     const raw = JSON.parse(localStorage.getItem("cookcards_collection")||"null");
-    if (raw && raw.ingredients) return raw;
+    if (raw && raw.ingredients) {
+      if (!raw.garden) raw.garden = {};
+      return raw;
+    }
   } catch {}
-  return { ingredients:{...STARTER.ingredients}, customers:{...STARTER.customers} };
+  return { ingredients:{...STARTER.ingredients}, customers:{...STARTER.customers}, garden:{} };
 })();
 
 function saveCollection() { localStorage.setItem("cookcards_collection",JSON.stringify(collection)); }
@@ -704,9 +836,19 @@ function addToCollection(cards) {
   cards.forEach(c => {
     if (c.type==="ingredient") collection.ingredients[c.name]=(collection.ingredients[c.name]||0)+1;
     else if (c.type==="customer") collection.customers[c.name]=(collection.customers[c.name]||0)+1;
+    else if (c.type==="garden") { collection.garden=collection.garden||{}; collection.garden[c.name]=(collection.garden[c.name]||0)+1; }
   });
   saveCollection();
 }
+
+// ── GARDEN PLOTS STATE ───────────────────────────────────────────────────────
+let gardenPlots = (() => {
+  try {
+    const raw = JSON.parse(localStorage.getItem("cookcards_garden_plots")||"null");
+    return Array.isArray(raw) ? raw : Array(9).fill(null);
+  } catch { return Array(9).fill(null); }
+})();
+function saveGardenPlots() { localStorage.setItem("cookcards_garden_plots", JSON.stringify(gardenPlots)); }
 
 // ── WALLET ────────────────────────────────────────────────────────────────────
 const WALLET_KEY = "cookcards_wallet";
@@ -734,11 +876,23 @@ function spendFromWallet(amount) {
 }
 
 function refreshWalletDisplays() {
-  ["title-wallet","shop-wallet","sell-wallet","card-shop-wallet"].forEach(id => {
+  ["title-wallet","shop-wallet","sell-wallet","card-shop-wallet","garden-wallet"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.textContent = `💰 $${wallet}`;
   });
 }
+
+// ── GARDEN BONUS HELPERS ──────────────────────────────────────────────────────
+function getGardenBonus(effect) {
+  return gardenPlots.reduce((sum, name) => {
+    if (!name) return sum;
+    const card = gardenCardTypes.find(c=>c.name===name);
+    return (card && card.effect===effect) ? sum + card.value : sum;
+  }, 0);
+}
+function effectivePackCost()  { return Math.max(1, PACK_COST + getGardenBonus("packCost")); }
+function sellIngPrice()  { const b=1+getGardenBonus("sellBonus"); return getGardenBonus("sellDouble")>0?b*2:b; }
+function sellCustPrice() { return getGardenBonus("sellDouble")>0?6:3; }
 
 // ── SCREEN NAVIGATION ─────────────────────────────────────────────────────────
 function showScreen(id) {
@@ -750,6 +904,115 @@ function goToShop() {
   showScreen("screen-shop");
   refreshWalletDisplays();
   renderPackSelection();
+}
+
+function goToGarden() {
+  showScreen("screen-garden");
+  refreshWalletDisplays();
+  renderGardenScreen();
+}
+
+function renderGardenScreen() {
+  renderGardenGrid();
+  renderGardenBonuses();
+  renderGardenOwnedCards();
+}
+
+function renderGardenGrid() {
+  const grid = document.getElementById("garden-grid");
+  grid.innerHTML = "";
+  gardenPlots.forEach((name, idx) => {
+    const plot = document.createElement("div");
+    if (name) {
+      const card = gardenCardTypes.find(c=>c.name===name);
+      plot.className = "garden-plot planted";
+      plot.innerHTML = `
+        <button class="garden-plot-remove" onclick="event.stopPropagation();removePlot(${idx})">✕</button>
+        <div class="garden-plot-emoji">${card.emoji}</div>
+        <div class="garden-plot-name">${card.name}</div>
+        <div class="garden-plot-effect">${card.desc}</div>
+      `;
+    } else {
+      plot.className = "garden-plot empty";
+      plot.innerHTML = `<div style="font-size:1.4em;opacity:0.4">🪴</div><div>Empty</div>`;
+    }
+    grid.appendChild(plot);
+  });
+  const full = gardenPlots.every(p=>p!==null);
+  document.getElementById("garden-full-msg").textContent = full ? "🌳 Garden full! Remove a plant to make room." : "";
+}
+
+function renderGardenBonuses() {
+  const list = document.getElementById("garden-bonus-list");
+  list.innerHTML = "";
+  const planted = gardenPlots.filter(n=>n);
+  if (!planted.length) {
+    list.innerHTML = `<div class="garden-no-bonus">Plant garden cards to earn bonuses!</div>`;
+    return;
+  }
+  planted.forEach(name => {
+    const card = gardenCardTypes.find(c=>c.name===name);
+    if (!card) return;
+    const item = document.createElement("div");
+    item.className = "garden-bonus-item";
+    item.textContent = `${card.emoji} ${card.name}: ${card.desc}`;
+    list.appendChild(item);
+  });
+}
+
+function renderGardenOwnedCards() {
+  const list = document.getElementById("garden-owned-list");
+  list.innerHTML = "";
+  const owned = collection.garden || {};
+  const hasAny = gardenCardTypes.some(c=>(owned[c.name]||0)>0);
+  if (!hasAny) {
+    list.innerHTML = `<div class="garden-empty-msg">No garden cards yet!<br>Buy a 🌿 Garden Pack from the shop.</div>`;
+    return;
+  }
+  const full = gardenPlots.every(p=>p!==null);
+  gardenCardTypes.forEach(gcard => {
+    const qty = owned[gcard.name] || 0;
+    if (qty === 0) return;
+    const rs = RARITY_STYLE[gcard.rarity] || RARITY_STYLE.common;
+    const row = document.createElement("div");
+    row.className = "garden-owned-row";
+    row.innerHTML = `
+      <div class="garden-card-emoji">${gcard.emoji}</div>
+      <div class="garden-card-info">
+        <div class="garden-card-name">${gcard.name}
+          <span style="font-size:0.72em;background:${rs.border};color:white;border-radius:999px;padding:1px 7px;margin-left:4px">${rs.label}</span>
+        </div>
+        <div class="garden-card-desc">${gcard.desc}</div>
+      </div>
+      <div class="garden-card-qty">×${qty}</div>
+      <button class="btn-plant" onclick="plantGardenCard('${gcard.name}')" ${full?"disabled":""}>🌱 Plant</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function plantGardenCard(name) {
+  const emptyIdx = gardenPlots.indexOf(null);
+  if (emptyIdx === -1) { document.getElementById("garden-full-msg").textContent = "🌳 Garden full! Remove a plant to make room."; return; }
+  const owned = collection.garden || {};
+  if ((owned[name]||0) <= 0) return;
+  owned[name]--;
+  collection.garden = owned;
+  gardenPlots[emptyIdx] = name;
+  saveCollection();
+  saveGardenPlots();
+  renderGardenScreen();
+}
+
+function removePlot(idx) {
+  const name = gardenPlots[idx];
+  if (!name) return;
+  gardenPlots[idx] = null;
+  collection.garden = collection.garden || {};
+  collection.garden[name] = (collection.garden[name]||0) + 1;
+  saveGardenPlots();
+  saveCollection();
+  renderGardenScreen();
 }
 
 function goToCardShop() {
@@ -861,6 +1124,9 @@ function renderSellScreen() {
 function renderSellIngredients() {
   const list = document.getElementById("sell-ing-list");
   list.innerHTML = "";
+  const price = sellIngPrice();
+  const label = document.getElementById("sell-ing-price-label");
+  if (label) label.textContent = `$${price} each${price>1?" 🌿":""}`;
   ingredients.forEach(ing => {
     const qty = collection.ingredients[ing.name] || 0;
     const row = document.createElement("div");
@@ -870,7 +1136,7 @@ function renderSellIngredients() {
       <span class="sell-ing-name">${ing.name}</span>
       <span class="sell-qty">×${qty}</span>
       <button class="btn-sell-card" onclick="sellCard('ingredient','${ing.name}')" ${qty<=0?"disabled":""}>
-        Sell ($1)
+        Sell ($${price})
       </button>
     `;
     list.appendChild(row);
@@ -880,6 +1146,9 @@ function renderSellIngredients() {
 function renderSellCustomers() {
   const grid = document.getElementById("sell-cust-grid");
   grid.innerHTML = "";
+  const price = sellCustPrice();
+  const label = document.getElementById("sell-cust-price-label");
+  if (label) label.textContent = `$${price} each${price>3?" 🌈":""}`;
   customerList.forEach(cust => {
     const qty = collection.customers[cust.name] || 0;
     const wrap = document.createElement("div");
@@ -891,7 +1160,7 @@ function renderSellCustomers() {
       </div>
       <div class="sell-cust-name">${cust.name}</div>
       <button class="btn-sell-cust" onclick="sellCard('customer','${cust.name}')" ${qty<=0?"disabled":""}>
-        Sell ($3)
+        Sell ($${price})
       </button>
     `;
     grid.appendChild(wrap);
@@ -902,12 +1171,12 @@ function sellCard(type, name) {
   if (type==="ingredient") {
     if ((collection.ingredients[name]||0)<=0) return;
     collection.ingredients[name]--;
-    addToWallet(1);
+    addToWallet(sellIngPrice());
     renderSellIngredients();
   } else {
     if ((collection.customers[name]||0)<=0) return;
     collection.customers[name]--;
-    addToWallet(3);
+    addToWallet(sellCustPrice());
     renderSellCustomers();
   }
   saveCollection();
@@ -923,8 +1192,9 @@ function renderPackSelection() {
   const sel = document.createElement("div");
   sel.className = "pack-selection";
 
+  const cost = effectivePackCost();
   packTypes.forEach(pt => {
-    const canAfford = wallet >= PACK_COST;
+    const canAfford = wallet >= cost;
     const card = document.createElement("div");
     card.className = "pack-type-card" + (canAfford ? "" : " disabled");
     card.innerHTML = `
@@ -934,17 +1204,18 @@ function renderPackSelection() {
         <div class="pack-desc">${pt.desc.replace(/\n/g,"<br>")}</div>
       </div>
       <button class="pack-open-btn" style="background:${pt.bg}" ${canAfford?"":"disabled"}>
-        ${canAfford ? `Buy for $${PACK_COST}` : `Need $${PACK_COST} (have $${wallet})`}
+        ${canAfford ? `Buy for $${cost}${cost<PACK_COST?" 🍀":""}` : `Need $${cost} (have $${wallet})`}
       </button>
     `;
-    if (canAfford) card.onclick = () => startPackOpening(pt);
+    if (canAfford) card.onclick = () => startPackOpening(pt, cost);
     sel.appendChild(card);
   });
   area.appendChild(sel);
 }
 
-function startPackOpening(pt) {
-  if (!spendFromWallet(PACK_COST)) return;
+function startPackOpening(pt, cost) {
+  if (cost===undefined) cost=effectivePackCost();
+  if (!spendFromWallet(cost)) return;
   openedCards = pt.draw();
   flippedCount = 0;
 
@@ -997,20 +1268,27 @@ function flipRevealCard(i, card) {
       ${imgHtml}
       <div class="r-name" style="color:${rs.text}">${card.name}</div>
       <span class="rarity-badge" style="background:${rs.border};color:white">${rs.label}</span>`;
-  } else {
+  } else if (card.type==="customer") {
     front.innerHTML = `
       <img class="r-cust-img" src="images/Customers/${card.img}" alt="${card.name}">
       <div class="r-name" style="color:${rs.text}">${card.name}</div>
       <span class="rarity-badge" style="background:${rs.border};color:white">Customer</span>`;
+  } else {
+    front.innerHTML = `
+      <div style="font-size:3.2em;line-height:1">${card.emoji||"🌿"}</div>
+      <div class="r-name" style="color:${rs.text}">${card.name}</div>
+      <div style="font-size:0.5em;color:${rs.text};font-weight:700;text-align:center;margin:2px 0">${card.desc||""}</div>
+      <span class="rarity-badge" style="background:${rs.border};color:white">${rs.label}</span>`;
   }
 
   flippedCount++;
   if (flippedCount===openedCards.length) {
     const actions = document.getElementById("reveal-actions");
-    const canAffordAnother = wallet >= PACK_COST;
+    const nextCost = effectivePackCost();
+    const canAffordAnother = wallet >= nextCost;
     actions.innerHTML = `
       <button class="btn-collect" onclick="collectCards()">✨ Add to Collection!</button>
-      ${canAffordAnother ? `<button class="btn-open-another" onclick="collectAndOpenAnother()">Open Another ($${PACK_COST})</button>` : ""}
+      ${canAffordAnother ? `<button class="btn-open-another" onclick="collectAndOpenAnother()">Open Another ($${nextCost})</button>` : ""}
     `;
   }
 }
@@ -1035,7 +1313,7 @@ const SEAFOOD = new Set(["Salmon","Tuna","Shrimp","Octopus","Crab","Lobster","Sa
 const pool    = [];
 ingredients.forEach(ing=>{ for(let i=0;i<ing.weight;i++) pool.push(ing); });
 
-const DECK_MAX      = 100;
+const DECK_MAX      = 200;
 const DECK_MIN      = 10;
 const CUST_DECK_MAX = 50;
 const CUST_MIN      = 4;
@@ -1256,7 +1534,7 @@ function startGameWithDeck() {
   activeCustomers=[];
   const usedDishes=[];
   for(let i=0;i<3;i++){const slot=dealCustomer(usedDishes);usedDishes.push(slot.dish.name);activeCustomers.push(slot);}
-  hand=Array.from({length:10},drawIngredient);
+  hand=Array.from({length:10+getGardenBonus("handSize")},drawIngredient);
   setStatus("Pick a customer, then tap their ingredients!","");
   render();renderDeckPiles();startTimer();
 }
@@ -1264,7 +1542,7 @@ function startGameWithDeck() {
 // ── TIMER ─────────────────────────────────────────────────────────────────────
 function startTimer() {
   clearInterval(timerInterval);
-  timeLeft=TIME_START;gameActive=true;paused=false;
+  timeLeft=TIME_START+getGardenBonus("startTime");gameActive=true;paused=false;
   document.getElementById("customers").classList.remove("blacked-out");
   document.getElementById("hand").classList.remove("blacked-out");
   const pb=document.getElementById("btn-pause");if(pb)pb.textContent="⏸️ Pause";
@@ -1322,7 +1600,7 @@ function dealCustomer(usedDishNames=[]) {
   let available=dishes.filter(d=>!usedDishNames.includes(d.name));
   if(!available.length) available=[...dishes];
   const dish=pick(available);
-  const slot={customer:cust,dish,patience:5};
+  const slot={customer:cust,dish,patience:5+getGardenBonus("patience")};
   if(cust.ability==="mystery"){const h=dish.recipe.filter(r=>r!=="Rice"&&r!=="Nori");slot.hiddenIngredient=h.length?pick(h):pick(dish.recipe);slot.hintShown=false;}
   if(cust.ability==="wildCard") slot.wildIndex=Math.floor(Math.random()*dish.recipe.length);
   if(cust.ability==="kingsOrder") slot.serveCountAtSpawn=serveCount;
@@ -1438,6 +1716,8 @@ function handleCorrectOrder() {
   if(ability==="vipRush"){const el=slot.selectedAt?(Date.now()-slot.selectedAt)/1000:999;const vip=Math.round(Math.max(0,20-Math.max(0,el-15)));if(vip>0){bonus+=vip;bonusMsgs.push(`👸 +$${vip}`);}}
   if(ability==="patientTipper"&&slot.servesBefore>0){const tip=slot.servesBefore*5;bonus+=tip;bonusMsgs.push(`👵 +$${tip}`);}
 
+  const gardenOrder=getGardenBonus("orderBonus");
+  if(gardenOrder>0){bonus+=gardenOrder;bonusMsgs.push(`🌻 +$${gardenOrder}`);}
   let earned=dish.price+bonus;
   if(encoreActive){earned*=2;encoreActive=false;bonusMsgs.push("🎸 ×2");}
 
