@@ -3,126 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Luke's Card Game</title>
+<title>Cook Cards</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; }
   body {
     margin: 0; min-height: 100vh;
-    font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
-    background: linear-gradient(135deg, #6dd5fa, #ffb88c);
+    font-family: 'Nunito', 'Trebuchet MS', sans-serif;
+    background: url("images/assets/BackSplash.png") center center / cover no-repeat fixed;
     padding: 12px;
   }
 
   /* ── PAGE LAYOUT ──────────────────────────────────────────────────────────────
-     Two-column row at the top: customer area on the left grows to fill all
-     available space; the sidebar is fixed-width on the right.
-     Below that, the ingredient grid and action bar span the full width.       */
-  .layout {
+     Two-column layout: ingredient grid on the left (flex:1 — fills all remaining
+     space), right panel is fixed-width and stacks controls + customer cards.    */
+  .game-layout {
     display: flex;
     gap: 12px;
     align-items: flex-start;
-    margin-bottom: 10px;
   }
 
-  /* ── SIDEBAR (right column) ───────────────────────────────────────────────── */
-  .sidebar {
-    /* Fixed width keeps the sidebar compact so customers get maximum space */
-    width: 160px;
-    flex-shrink: 0;
+  /* ── LEFT PANEL: ingredient grid + action bar + status ───────────────────── */
+  .left-panel {
+    flex: none;
+    width: 840px;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    align-items: stretch;
   }
-  .sidebar h1 {
-    margin: 0;
-    color: #2b2b52; text-shadow: 1px 1px 0 #fff;
-    font-size: 1.05em; text-align: center;
-  }
-  .sidebar-desc {
-    /* Short helper text describing each play area */
-    font-size: 0.72em; color: #2b2b52; font-weight: bold;
-    background: rgba(255,255,255,0.55); border-radius: 10px;
-    padding: 5px 8px; text-align: center; line-height: 1.4;
-  }
-  .score {
-    font-size: 1.3em; font-weight: bold; color: #27ae60;
-    background: white; border-radius: 12px;
-    padding: 4px 10px; text-align: center;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
-  }
-  .btn-new {
-    background: #e84393; color: white; border: none;
-    border-radius: 10px; padding: 8px 12px; font-size: 0.9em;
-    cursor: pointer; font-family: inherit; box-shadow: 0 4px 0 #a02d66;
-  }
-  .btn-new:active { transform: translateY(3px); box-shadow: none; }
 
-  /* ── CUSTOMER CARDS (left column, flex children) ──────────────────────────── */
-
-  /* Customers fill all space left of the sidebar, no wrapping.
-     justify-content: center keeps the three capped-width cards centred
-     in the flex container instead of piling up on the left edge.         */
-  .customers {
+  /* ── RIGHT PANEL: sidebar controls then customer cards ───────────────────── */
+  .right-panel {
     flex: 1;
     min-width: 0;
     display: flex;
+    flex-direction: column;
     gap: 8px;
+  }
+
+  /* ── SIDEBAR ─────────────────────────────────────────────────────────────── */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: stretch;
+    max-width: 380px;
+  }
+  .sidebar-row {
+    display: flex;
+    gap: 6px;
+  }
+  .score {
+    flex: 1;
+    font-size: 1.05em; font-weight: 800; color: #3d2b1f;
+    background: #fdf3e3; border-radius: 999px;
+    padding: 5px 10px; text-align: center;
+    border: 2px solid #c9973d;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .btn-new {
+    flex: 1;
+    background: #5a8f5a; color: white; border: none;
+    border-radius: 999px; padding: 7px 10px; font-size: 0.82em;
+    font-weight: 800; cursor: pointer; font-family: inherit;
+    box-shadow: 0 4px 0 #38623a; letter-spacing: 0.02em;
+  }
+  .btn-new:active { transform: translateY(4px); box-shadow: none; }
+
+  /* ── CUSTOMER CARDS (right panel — 3 in a row, portrait TCG ratio) ─────── */
+  .customers {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: flex-start;
     justify-content: center;
   }
-  /* Each card grows equally but caps at 220px — roughly 40% narrower than the
-     unconstrained flex-1 width on a typical laptop screen (~384px per card). */
   .customer-card {
     flex: 1;
-    min-width: 0;
-    max-width: 220px;
-    background: white; border-radius: 18px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-    padding: 10px 8px; cursor: pointer;
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-    border: 4px solid transparent;
+    aspect-ratio: 5/7;
+    overflow: hidden;
+    position: relative;
+    background: #1a1a2e; border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    padding: 0; cursor: pointer;
+    border: 3px solid transparent;
     transition: transform 0.15s, border-color 0.15s;
   }
-  .customer-card:hover { transform: translateY(-4px); }
-  .customer-card.selected { border-color: #27ae60; box-shadow: 0 0 0 4px #27ae60; }
+  .customer-card:hover { transform: translateY(-3px); }
+  .customer-card.selected { border-color: #27ae60; box-shadow: 0 0 0 3px #27ae60; }
 
-  /* Emoji scales with viewport so it fills the card without overflowing */
-  .c-emoji { font-size: clamp(48px, 8vw, 90px); line-height: 1; }
-  .c-name  { font-size: 0.85em; font-weight: bold; color: #2b2b52; }
+  /* Portrait image fills the full card */
+  .c-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* Info overlay pinned to the bottom, fades in from transparent */
+  .c-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.92) 30%);
+    padding: 18px 5px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
   .c-ability {
-    font-size: 0.65em; color: white; background: #8e44ad;
-    padding: 2px 8px; border-radius: 12px; text-align: center; line-height: 1.3;
+    font-size: 0.52em; color: white; background: rgba(142,68,173,0.88);
+    padding: 1px 5px; border-radius: 8px; text-align: center; line-height: 1.3;
+    width: 100%;
   }
-  .c-dish  { font-size: 0.78em; color: #555; margin-top: 2px; }
+  .c-dish { font-size: 0.55em; color: #ffe; text-align: center; }
+  .c-dish-row {
+    display: flex; gap: 4px; align-items: center; justify-content: center; flex-wrap: wrap;
+  }
   .c-price {
-    background: #27ae60; color: white;
-    padding: 2px 10px; border-radius: 20px; font-size: 0.82em; font-weight: bold;
+    background: rgba(39,174,96,0.9); color: white;
+    padding: 1px 5px; border-radius: 10px; font-size: 0.55em; font-weight: bold;
   }
-  .c-patience { font-size: 0.95em; letter-spacing: 2px; min-height: 1.3em; }
-  .patience-3 { color: #27ae60; }
-  .patience-2 { color: #e67e22; }
-  .patience-1 { color: #e74c3c; animation: blink 0.7s infinite; }
+  .c-patience { font-size: 0.68em; letter-spacing: 0; color: white; min-height: 1em; }
+  .patience-3 { color: #4ade80; }
+  .patience-2 { color: #fb923c; }
+  .patience-1 { color: #f87171; animation: blink 0.7s infinite; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  .recipe-label { font-size: 0.68em; color: #888; margin-top: 2px; }
-  .recipe-items { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; }
+  .recipe-items { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; }
   .recipe-item {
-    background: #f0f0f0; border-radius: 8px;
-    padding: 2px 5px; font-size: 0.72em; color: #333;
+    background: rgba(240,240,240,0.88); border-radius: 4px;
+    padding: 1px 3px; font-size: 0.5em; color: #222;
   }
-  .recipe-item.wild-slot    { background: #fff3cd; color: #856404; font-weight: bold; }
-  .recipe-item.mystery-slot { background: #ede0f7; color: #6a0dad; font-style: italic; }
+  .recipe-item.wild-slot    { background: rgba(255,243,205,0.9); color: #856404; font-weight: bold; }
+  .recipe-item.mystery-slot { background: rgba(237,224,247,0.9); color: #6a0dad; font-style: italic; }
 
   /* ── INGREDIENT GRID ──────────────────────────────────────────────────────────
-     Always exactly 5 columns so 10 cards land on 2 neat rows.
-     max-width caps the grid at ~half of what it would span unconstrained on a
-     wide screen (full body ≈ 1340px → half ≈ 670px → each card ≈ 130px wide). */
+     Default 5 columns → 2 identical rows of 5 for a 10-card hand.
+     JS switches to 6 columns when hand grows to 12 (Foxy bonus) → 2 rows of 6. */
   .hand {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
-    max-width: 670px;
-    margin: 0 auto 10px;
+    gap: 8px;
   }
   .ing-card {
     background: white; border-radius: 12px;
@@ -163,29 +180,34 @@
   .veg-wild-card.selected { border-color: #33691e; box-shadow: 0 0 0 3px #33691e; }
 
   /* Tiny ingredient image inside recipe chips on customer cards */
-  .recipe-ing-img { width: 18px; height: 18px; object-fit: contain; vertical-align: middle; }
+  .recipe-ing-img { width: 11px; height: 11px; object-fit: contain; vertical-align: middle; }
 
   /* ── ACTION BAR ───────────────────────────────────────────────────────────── */
-  .actions { display: flex; gap: 12px; justify-content: center; margin: 4px 0 6px; }
+  .actions { display: flex; gap: 12px; justify-content: center; }
   .btn-serve {
-    background: #e84393; box-shadow: 0 5px 0 #a02d66;
-    color: white; border: none; border-radius: 14px;
-    padding: 12px 28px; font-size: 1.1em; cursor: pointer; font-family: inherit;
+    background: #d4601a; box-shadow: 0 5px 0 #9a3f0a;
+    color: white; border: none; border-radius: 999px;
+    padding: 12px 32px; font-size: 1.05em; font-weight: 900;
+    cursor: pointer; font-family: inherit; letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
   .btn-discard {
-    background: #7f8c8d; box-shadow: 0 5px 0 #555;
-    color: white; border: none; border-radius: 14px;
-    padding: 12px 24px; font-size: 1.1em; cursor: pointer; font-family: inherit;
+    background: #7a6255; box-shadow: 0 5px 0 #5a4840;
+    color: white; border: none; border-radius: 999px;
+    padding: 12px 24px; font-size: 1.05em; font-weight: 800;
+    cursor: pointer; font-family: inherit; letter-spacing: 0.03em;
   }
-  .btn-serve:active, .btn-discard:active { transform: translateY(4px); box-shadow: none; }
+  .btn-serve:active, .btn-discard:active { transform: translateY(5px); box-shadow: none; }
 
   /* ── PAUSE BUTTON ────────────────────────────────────────────────────────── */
   .btn-pause {
-    background: #2980b9; color: white; border: none;
-    border-radius: 10px; padding: 8px 12px; font-size: 0.9em;
-    cursor: pointer; font-family: inherit; box-shadow: 0 4px 0 #1a5276;
+    flex: 1;
+    background: #c9973d; color: white; border: none;
+    border-radius: 999px; padding: 7px 10px; font-size: 0.82em;
+    font-weight: 800; cursor: pointer; font-family: inherit;
+    box-shadow: 0 4px 0 #9a6f20; letter-spacing: 0.02em;
   }
-  .btn-pause:active { transform: translateY(3px); box-shadow: none; }
+  .btn-pause:active { transform: translateY(4px); box-shadow: none; }
 
   /* When the game is paused, dim the cards so the player can't memorise
      positions. pointer-events: none blocks all clicks while blacked out.  */
@@ -197,13 +219,15 @@
 
   /* ── TIMER ────────────────────────────────────────────────────────────────── */
   .timer {
-    font-size: 1.4em; font-weight: bold; color: #2b2b52;
-    background: white; border-radius: 12px;
-    padding: 4px 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-    text-align: center; transition: background 0.3s, color 0.3s;
+    flex: 1;
+    font-size: 1.1em; font-weight: 800; color: #3d2b1f;
+    background: #fdf3e3; border-radius: 999px;
+    padding: 5px 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    border: 2px solid #c9973d;
+    text-align: center; transition: background 0.3s, color 0.3s, border-color 0.3s;
   }
-  .timer.warning { background: #fff3cd; color: #e67e22; }
-  .timer.urgent  { background: #fde8e8; color: #e74c3c; animation: timerPulse 0.6s infinite; }
+  .timer.warning { background: #fdecd0; color: #a05a10; border-color: #c97a30; }
+  .timer.urgent  { background: #fdddd0; color: #c03020; border-color: #c04020; animation: timerPulse 0.6s infinite; }
   @keyframes timerPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
 
   .time-flash {
@@ -218,11 +242,13 @@
 
   /* ── STATUS ───────────────────────────────────────────────────────────────── */
   .status {
-    text-align: center; font-size: 1.05em; font-weight: bold;
-    color: #2b2b52; min-height: 1.6em; margin-top: 4px;
+    text-align: center; font-size: 0.98em; font-weight: 700;
+    color: #3d2b1f; min-height: 1.6em;
+    background: rgba(253,243,227,0.75); border-radius: 999px;
+    padding: 4px 16px;
   }
-  .status.ok    { color: #27ae60; }
-  .status.error { color: #e74c3c; }
+  .status.ok    { color: #3a6e3a; }
+  .status.error { color: #b03020; }
 
   @keyframes pop {
     0%   { transform: scale(1); }
@@ -231,52 +257,64 @@
   }
   .pop { animation: pop 0.3s ease; }
 
-  /* ── RESPONSIVE: narrow screens ───────────────────────────────────────────── *
-     On phones the sidebar folds into a compact top bar so customers still
-     have a full-width row below it.                                            */
-  @media (max-width: 600px) {
-    .layout { flex-direction: column-reverse; gap: 8px; }
-    .sidebar {
-      width: 100%;
-      flex-direction: row; flex-wrap: wrap;
-      justify-content: space-between; align-items: center;
-      gap: 6px;
-    }
-    .sidebar h1 { font-size: 0.95em; }
-    /* Hide the descriptive text labels on small screens to save space */
-    .sidebar-desc { display: none; }
-    .customers { gap: 6px; }
+  /* ── LOGO ────────────────────────────────────────────────────────────────── */
+  .logo-bar {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .game-logo {
+    height: 144px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 8px rgba(0,0,0,0.25));
+  }
+
+  /* ── RESPONSIVE: narrow screens ───────────────────────────────────────────── */
+  @media (max-width: 700px) {
+    .game-layout { flex-direction: column; gap: 8px; }
+    .left-panel { width: 100%; flex: none; }
+    .right-panel { flex: none; width: 100%; }
+    .sidebar { flex-direction: row; flex-wrap: wrap; max-width: none; justify-content: space-between; align-items: center; }
+    .customer-card { aspect-ratio: 5/7; }
   }
 </style>
 </head>
 <body>
 
-<!-- Two-column top section: customers stretch left, sidebar sits on the right -->
-<div class="layout">
-  <div class="customers" id="customers"></div>
-
-  <!-- Sidebar holds all the info/controls that were previously in the header
-       and section titles, freeing vertical space for the customer cards       -->
-  <aside class="sidebar">
-    <h1>🍽️ Luke's Card Game</h1>
-    <div class="timer" id="timer">⏱️ 2:30</div>
-    <div class="score">💰 $<span id="score">0</span></div>
-    <button class="btn-new" onclick="newGame()">🔄 New Game</button>
-    <!-- Pause/resume button — toggles the timer and blackouts the cards -->
-    <button class="btn-pause" id="btn-pause" onclick="togglePause()">⏸️ Pause</button>
-    <div class="sidebar-desc">👥 Tap a customer to select, then tap their ingredients!</div>
-    <div class="sidebar-desc">🥘 Tap ingredients below, then press Serve!</div>
-  </aside>
+<!-- Logo banner -->
+<div class="logo-bar">
+  <img src="images/assets/CookCardsLogo.png" alt="Cook Cards" class="game-logo">
 </div>
 
-<!-- Ingredient grid: CSS forces exactly 5 columns = 2 rows of 10 cards -->
-<div class="hand" id="hand"></div>
+<!-- Two-column layout: ingredient grid on the left, controls + customers on the right -->
+<div class="game-layout">
 
-<div class="actions">
-  <button class="btn-serve"   onclick="serve()">🍽️ Serve!</button>
-  <button class="btn-discard" onclick="discardSelected()">🗑️ Discard Selected</button>
+  <!-- Left panel: big ingredient grid, then action buttons and status below -->
+  <div class="left-panel">
+    <div class="hand" id="hand"></div>
+    <div class="actions">
+      <button class="btn-serve"   onclick="serve()">🍽️ Serve!</button>
+      <button class="btn-discard" onclick="discardSelected()">🗑️ Discard Selected</button>
+    </div>
+    <div class="status" id="status">Pick a customer, then tap their ingredients!</div>
+  </div>
+
+  <!-- Right panel: sidebar controls at the top, customer cards stacked below -->
+  <div class="right-panel">
+    <aside class="sidebar">
+      <div class="sidebar-row">
+        <div class="timer" id="timer">⏱️ 2:30</div>
+        <div class="score">💰 $<span id="score">0</span></div>
+      </div>
+      <div class="sidebar-row">
+        <button class="btn-new"   onclick="newGame()">🔄 New Game</button>
+        <button class="btn-pause" id="btn-pause" onclick="togglePause()">⏸️ Pause</button>
+      </div>
+    </aside>
+    <div class="customers" id="customers"></div>
+  </div>
+
 </div>
-<div class="status" id="status">Pick a customer, then tap their ingredients!</div>
 
 <script>
 // ── INGREDIENTS (14) ─────────────────────────────────────────────────────────
@@ -335,22 +373,22 @@ const dishes = [
 
 // ── CUSTOMERS with special abilities ──────────────────────────────────────────
 const customerList = [
-  { emoji:"👑",    name:"The King",         ability:"bigTipper",   abilityText:"Pays $20 extra on any dish!" },
-  { emoji:"🤠",    name:"Cowboy Carl",      ability:"spiceLover",  abilityText:"+$10 if dish has Chilli or Wasabi!" },
-  { emoji:"🧙",    name:"Wizard Zorp",      ability:"mystery",     abilityText:"One ingredient is hidden — guess it!" },
-  { emoji:"🦸",    name:"Captain Strong",   ability:"proteinBuff", abilityText:"+$12 if dish has 2+ seafood items!" },
-  { emoji:"🧜",    name:"Mermaid Marina",   ability:"seafoodOnly", abilityText:"Only orders dishes with seafood!" },
-  { emoji:"🐼",    name:"Panda Pete",       ability:"greenThumb",  abilityText:"+$10 for dishes with Avocado or Cucumber!" },
-  { emoji:"🧛",    name:"Count Fangula",    ability:"firstBite",   abilityText:"Served first this game? Earns DOUBLE!" },
-  { emoji:"👸",    name:"Princess Sparkle", ability:"highClass",   abilityText:"Only orders dishes priced $30 or more!" },
-  { emoji:"🤖",    name:"Robot 3000",       ability:"strictOrder", abilityText:"Wrong order? Lose 1 ingredient!" },
-  { emoji:"🦊",    name:"Foxy",             ability:"luckyDraw",   abilityText:"Serve Foxy → draw 2 bonus ingredients!" },
-  { emoji:"🧑‍🚀", name:"Astronaut Al",     ability:"wildCard",    abilityText:"One recipe slot is ❓ — any ingredient fits!" },
-  { emoji:"🐉",    name:"Dragon Dave",      ability:"needsFire",   abilityText:"Only accepts dishes with Chilli or Wasabi!" },
-  { emoji:"🏄",    name:"Surfer Dude",      ability:"easyOrder",   abilityText:"Always orders a 2-ingredient dish!" },
-  { emoji:"🧑‍🎤", name:"Rockstar Rex",     ability:"doubleDown",  abilityText:"Pays DOUBLE — but wrong orders cost $10!" },
-  { emoji:"🦄",    name:"Uni the Unicorn",  ability:"magicHand",   abilityText:"Serve Uni → one ingredient becomes a ⭐ Wild!" },
-  { emoji:"👵",    name:"Grandma",          ability:"forgiving",   abilityText:"Wrong order? She forgives — no penalty!" },
+  { img:"TheKing.png",         name:"The King",         ability:"kingsOrder",    abilityText:"Serve first after he arrives: +$25! Each skip costs -$5." },
+  { img:"CowboyCarl.png",      name:"Cowboy Carl",      ability:"sideBet",       abilityText:"When served, your NEXT correct order earns +[his dish price] extra!" },
+  { img:"WizardZorp.png",      name:"Wizard Zorp",      ability:"mystery",       abilityText:"One ingredient is hidden — guess it!" },
+  { img:"CaptainStrong.png",   name:"Captain Strong",   ability:"shield",        abilityText:"While he waits, no other customer loses patience!" },
+  { img:"MermaidMarina.png",   name:"Mermaid Marina",   ability:"tidalBounty",   abilityText:"Each ingredient you discard while she waits adds +$5 to her payout!" },
+  { img:"PandaPete.png",       name:"Panda Pete",       ability:"bambooStash",   abilityText:"When served, adds 2 Veg Farm wilds to your hand!" },
+  { img:"CountFangula.png",    name:"Count Fangula",    ability:"firstBite",     abilityText:"Served first this game? Earns DOUBLE!" },
+  { img:"PrincessSparkle.png", name:"Princess Sparkle", ability:"vipRush",       abilityText:"Tap her to start a 15s clock! Serve in time: +$20. Then -$1/sec." },
+  { img:"Robot3000.png",       name:"Robot 3000",       ability:"flawless",      abilityText:"No wrong orders all game? Earn +$25 bonus when you serve Robot!" },
+  { img:"FoxFred.png",         name:"Foxy",             ability:"luckyDraw",     abilityText:"Serve Foxy → draw 2 bonus ingredients!" },
+  { img:"AstronautAl.png",     name:"Astronaut Al",     ability:"wildCard",      abilityText:"One recipe slot is ❓ — any ingredient fits!" },
+  { img:"DragonDave.png",      name:"Dragon Dave",      ability:"fury",          abilityText:"Each skip costs him 2 patience — but earns you +$8 more!" },
+  { img:"SurferDude.png",      name:"Surfer Dude",      ability:"freshWave",     abilityText:"When served, your entire hand refreshes with new ingredients!" },
+  { img:"RockStarRex.png",     name:"Rockstar Rex",     ability:"encore",        abilityText:"After serving Rex, your NEXT correct order earns DOUBLE!" },
+  { img:"UrielUnicorn.png",    name:"Uni the Unicorn",  ability:"magicHand",     abilityText:"Serve Uni → one ingredient becomes a ⭐ Wild!" },
+  { img:"GradnmaGin.png",      name:"Grandma",          ability:"patientTipper", abilityText:"Never leaves! Tips +$5 per customer served before her." },
 ];
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
@@ -374,6 +412,9 @@ let timeLeft        = 150;
 let timerInterval   = null;
 let gameActive      = false;
 let paused          = false; // true while the game is paused
+let sideBetBonus    = 0;     // bonus set by Cowboy Carl, applied to next correct order
+let flawlessRound   = true;  // becomes false the moment any wrong order occurs
+let encoreActive    = false; // set by Rockstar Rex, doubles the next correct order
 
 const TIME_START    = 150;
 const TIME_SERVE    = 30;   // bonus seconds for serving a customer
@@ -501,23 +542,9 @@ function togglePause() {
 function dealCustomer(usedDishNames = []) {
   const cust = pick(customerList);
   let available = dishes.filter(d => !usedDishNames.includes(d.name));
-
-  if (cust.ability === "seafoodOnly")
-    available = available.filter(d => d.recipe.some(r => SEAFOOD.has(r)));
-  if (cust.ability === "highClass")
-    available = available.filter(d => d.price >= 30);
-  if (cust.ability === "easyOrder")
-    available = available.filter(d => d.recipe.length === 2);
-  if (cust.ability === "needsFire")
-    available = available.filter(d => d.recipe.some(r => r === "Chilli" || r === "Wasabi"));
-
-  // Fallback: drop ability constraint if no dish survives the filter
-  if (!available.length) available = dishes.filter(d => !usedDishNames.includes(d.name));
   if (!available.length) available = [...dishes];
 
   const dish = pick(available);
-  // Each new customer starts with 5 patience stars instead of 3,
-  // giving the player more time before they walk out.
   const slot = { customer: cust, dish, patience: 5 };
 
   if (cust.ability === "mystery") {
@@ -528,14 +555,29 @@ function dealCustomer(usedDishNames = []) {
   if (cust.ability === "wildCard") {
     slot.wildIndex = Math.floor(Math.random() * dish.recipe.length);
   }
+  if (cust.ability === "kingsOrder") {
+    slot.serveCountAtSpawn = serveCount;
+  }
+  if (cust.ability === "tidalBounty") {
+    slot.tidalBonus = 0;
+  }
+  if (cust.ability === "fury") {
+    slot.furyBonus = 0;
+  }
+  if (cust.ability === "patientTipper") {
+    slot.servesBefore = 0;
+  }
 
   return slot;
 }
 
 // ── NEW GAME ──────────────────────────────────────────────────────────────────
 function newGame() {
-  score       = 0;
-  serveCount  = 0;
+  score         = 0;
+  serveCount    = 0;
+  sideBetBonus  = 0;
+  flawlessRound = true;
+  encoreActive  = false;
   selectedCustomer = null;
   selectedIdxs = new Set();
   document.getElementById("score").textContent = "0";
@@ -555,9 +597,9 @@ function newGame() {
 }
 
 // ── RENDERING ─────────────────────────────────────────────────────────────────
-function patienceHTML(patience) {
-  // Colour thresholds scaled for the 5-star range:
-  //   4–5 stars → green (safe), 3 → orange (caution), 1–2 → red + blink (urgent)
+function patienceHTML(patience, ability) {
+  if (ability === "patientTipper")
+    return `<div class="c-patience patience-3">♾️ Patient</div>`;
   const cls = patience >= 4 ? "patience-3" : patience === 3 ? "patience-2" : "patience-1";
   const label = patience <= 2 ? " 😤 LEAVING!" : "";
   return `<div class="c-patience ${cls}">${"⭐".repeat(Math.max(0, patience))}${label}</div>`;
@@ -581,21 +623,32 @@ function renderCustomers() {
     }).join("");
 
     div.innerHTML = `
-      <div class="c-emoji">${customer.emoji}</div>
-      <div class="c-name">${customer.name}</div>
-      <div class="c-ability">${customer.abilityText}</div>
-      <div class="c-dish">${dish.emoji} ${dish.name}</div>
-      <div class="c-price">💰 $${dish.price}</div>
-      ${patienceHTML(slot.patience)}
-      <div class="recipe-label">Recipe needs:</div>
-      <div class="recipe-items">${recipeHtml}</div>
+      <img class="c-img" src="images/Customers/${customer.img}" alt="${customer.name}">
+      <div class="c-overlay">
+        <div class="c-ability">${customer.abilityText}</div>
+        <div class="c-dish">${dish.emoji} ${dish.name}</div>
+        <div class="c-dish-row">
+          <span class="c-price">💰 $${dish.price}</span>
+          ${patienceHTML(slot.patience, customer.ability)}
+        </div>
+        <div class="recipe-items">${recipeHtml}</div>
+      </div>
     `;
+    // Show accumulated fury bonus on Dragon Dave's card
+    if (customer.ability === "fury" && slot.furyBonus > 0) {
+      const overlay = div.querySelector(".c-overlay");
+      const badge = document.createElement("div");
+      badge.style.cssText = "font-size:0.5em;color:#f87171;font-weight:bold;";
+      badge.textContent = `🐉 +$${slot.furyBonus} fury!`;
+      overlay.insertBefore(badge, overlay.firstChild);
+    }
     el.appendChild(div);
   });
 }
 
 function renderHand() {
   const el = document.getElementById("hand");
+  el.style.gridTemplateColumns = `repeat(${hand.length > 10 ? 6 : 5}, 1fr)`;
   el.innerHTML = "";
   hand.forEach((ing, idx) => {
     const div = document.createElement("div");
@@ -619,7 +672,15 @@ function render() { renderCustomers(); renderHand(); }
 
 // ── ACTIONS ───────────────────────────────────────────────────────────────────
 function selectCustomer(idx) {
+  const prev = selectedCustomer;
   selectedCustomer = (selectedCustomer === idx) ? null : idx;
+  // Start Princess Sparkle's VIP clock the first time she is selected
+  if (selectedCustomer !== null && selectedCustomer !== prev) {
+    const slot = activeCustomers[selectedCustomer];
+    if (slot.customer.ability === "vipRush" && !slot.selectedAt) {
+      slot.selectedAt = Date.now();
+    }
+  }
   renderCustomers();
 }
 
@@ -661,34 +722,14 @@ function serve() {
 
 function handleWrongOrder(slot) {
   const { customer } = slot;
-  const ability = customer.ability;
+  // Any wrong order breaks the flawless streak for Robot 3000
+  flawlessRound = false;
 
-  if (ability === "forgiving") {
-    setStatus(`💛 Grandma smiles: "No worries dear, try again!"`, "ok");
-    selectedIdxs = new Set();
-    renderHand();
-    return;
-  }
-  if (ability === "strictOrder") {
-    if (hand.length > 0) {
-      const loseIdx = Math.floor(Math.random() * hand.length);
-      hand.splice(loseIdx, 1);
-      hand.push(drawIngredient());
-    }
-    setStatus(`🤖 Wrong! Robot 3000 confiscated one ingredient!`, "error");
-    renderHand();
-    return;
-  }
-  if (ability === "doubleDown") {
-    score = Math.max(0, score - 10);
-    document.getElementById("score").textContent = score;
-    setStatus(`🎸 Wrong! Rockstar Rex fines you $10!`, "error");
-    return;
-  }
-  if (ability === "mystery" && slot.hiddenIngredient && !slot.hintShown) {
+  // Wizard Zorp: reveal the hidden ingredient on first wrong attempt
+  if (customer.ability === "mystery" && slot.hiddenIngredient && !slot.hintShown) {
     slot.hintShown = true;
     setStatus(`❌ The hidden ingredient was ${ingImg(slot.hiddenIngredient)} ${slot.hiddenIngredient}! Now you know — try again!`, "error");
-    renderCustomers(); // reveal it on the card
+    renderCustomers();
     return;
   }
   setStatus(`❌ Wrong recipe! Check what ${customer.name} wants.`, "error");
@@ -700,29 +741,58 @@ function handleCorrectOrder() {
   const { customer, dish } = slot;
   const ability = customer.ability;
 
-  // Calculate bonus
+  // ── Bonus calculation ────────────────────────────────────────────────────────
   let bonus = 0;
   const bonusMsgs = [];
-  if (ability === "bigTipper") {
-    bonus += 20; bonusMsgs.push("💰+$20 tip");
+
+  // Apply side-bet bonus from previous Cowboy Carl serve
+  if (sideBetBonus > 0) {
+    bonus += sideBetBonus;
+    bonusMsgs.push(`🤠 Carl's bet! +$${sideBetBonus}`);
+    sideBetBonus = 0;
   }
-  if (ability === "spiceLover" && dish.recipe.some(r => r === "Chilli" || r === "Wasabi")) {
-    bonus += 10; bonusMsgs.push("🌶️+$10");
-  }
-  if (ability === "proteinBuff" && dish.recipe.filter(r => SEAFOOD.has(r)).length >= 2) {
-    bonus += 12; bonusMsgs.push("💪+$12");
-  }
-  if (ability === "greenThumb" && dish.recipe.some(r => r === "Avocado" || r === "Cucumber")) {
-    bonus += 10; bonusMsgs.push("🥑+$10");
-  }
+
+  // Count Fangula: double payout if he's the very first customer served
   if (ability === "firstBite" && serveCount === 0) {
     bonus += dish.price; bonusMsgs.push("🧛 DOUBLE!");
   }
-  if (ability === "doubleDown") {
-    bonus += dish.price; bonusMsgs.push("🎸 DOUBLE!");
+  // The King: +$25 if no one else was served since he arrived
+  if (ability === "kingsOrder" && serveCount === slot.serveCountAtSpawn) {
+    bonus += 25; bonusMsgs.push("👑 First! +$25");
+  }
+  // Mermaid Marina: tidal bonus from discards while she waited
+  if (ability === "tidalBounty" && slot.tidalBonus > 0) {
+    bonus += slot.tidalBonus; bonusMsgs.push(`🧜 Tidal! +$${slot.tidalBonus}`);
+  }
+  // Dragon Dave: fury bonus accumulated from skips
+  if (ability === "fury" && slot.furyBonus > 0) {
+    bonus += slot.furyBonus; bonusMsgs.push(`🐉 Fury! +$${slot.furyBonus}`);
+  }
+  // Robot 3000: +$25 if zero wrong orders have happened all game
+  if (ability === "flawless" && flawlessRound) {
+    bonus += 25; bonusMsgs.push("🤖 Flawless! +$25");
+  }
+  // Princess Sparkle: VIP time bonus (+$20 within 15s, -$1/sec after)
+  if (ability === "vipRush") {
+    const elapsed = slot.selectedAt ? (Date.now() - slot.selectedAt) / 1000 : 999;
+    const vip = Math.round(Math.max(0, 20 - Math.max(0, elapsed - 15)));
+    if (vip > 0) { bonus += vip; bonusMsgs.push(`👸 VIP! +$${vip}`); }
+  }
+  // Grandma: +$5 per customer served before her
+  if (ability === "patientTipper" && slot.servesBefore > 0) {
+    const tip = slot.servesBefore * 5;
+    bonus += tip; bonusMsgs.push(`👵 Tip! +$${tip}`);
   }
 
-  const earned = dish.price + bonus;
+  let earned = dish.price + bonus;
+
+  // Rockstar Rex encore: double the payout of the NEXT order
+  if (encoreActive) {
+    earned *= 2;
+    encoreActive = false;
+    bonusMsgs.push("🎸 Encore! ×2");
+  }
+
   score += earned;
   serveCount++;
   document.getElementById("score").textContent = score;
@@ -730,45 +800,86 @@ function handleCorrectOrder() {
   let msg = `🎉 ${customer.name} loved it! +$${earned}`;
   if (bonusMsgs.length) msg += ` (${bonusMsgs.join(", ")})`;
 
-  // Consume selected ingredients, refill to 10
+  // ── Consume ingredients, refill to 10 ────────────────────────────────────────
   [...selectedIdxs].sort((a, b) => b - a).forEach(i => hand.splice(i, 1));
   while (hand.length < 10) hand.push(drawIngredient());
 
-  // Post-serve ability effects
+  // ── Post-serve ability effects ────────────────────────────────────────────────
   if (ability === "luckyDraw") {
-    hand.push(drawIngredient());
-    hand.push(drawIngredient());
+    hand.push(drawIngredient(), drawIngredient());
     msg += " 🦊 +2 bonus cards!";
   }
   if (ability === "magicHand") {
-    const wildIdx = Math.floor(Math.random() * hand.length);
-    hand[wildIdx] = { ...WILD };
-    msg += " ⭐ One ingredient became a Wild card!";
+    hand[Math.floor(Math.random() * hand.length)] = { ...WILD };
+    msg += " ⭐ One ingredient became a Wild!";
+  }
+  if (ability === "bambooStash") {
+    hand.push({ img:"farm.png", name:"Vegetable Farm", weight:2, isVegWild:true });
+    hand.push({ img:"farm.png", name:"Vegetable Farm", weight:2, isVegWild:true });
+    msg += " 🐼 +2 Veg Farm wilds!";
+  }
+  if (ability === "freshWave") {
+    hand = Array.from({ length: 10 }, drawIngredient);
+    msg += " 🏄 Fresh hand!";
+  }
+  if (ability === "sideBet") {
+    sideBetBonus = dish.price;
+    msg += ` 🤠 Next order gets +$${dish.price}!`;
+  }
+  if (ability === "encore") {
+    encoreActive = true;
+    msg += " 🎸 Next order DOUBLES!";
   }
 
-  // Patience: decrease all other customers by 1
+  // ── Patience update for waiting customers ─────────────────────────────────────
+  // shield (Captain Strong): while he's waiting, nobody else loses patience
+  const shieldActive = activeCustomers.some((s, i) => i !== servedIdx && s.customer.ability === "shield");
+
   for (let i = 0; i < activeCustomers.length; i++) {
-    if (i !== servedIdx) activeCustomers[i].patience--;
+    if (i === servedIdx) continue;
+    const s = activeCustomers[i];
+
+    if (s.customer.ability === "patientTipper") {
+      s.servesBefore++;   // Grandma never loses patience, just counts waits
+      continue;
+    }
+    if (s.customer.ability === "fury") {
+      if (!shieldActive) {
+        s.patience -= 2;              // Dragon Dave loses 2 per skip…
+        s.furyBonus = (s.furyBonus || 0) + 8; // …but banks $8 per skip
+      }
+      continue;
+    }
+    if (s.customer.ability === "kingsOrder" && !shieldActive) {
+      s.patience--;
+      // King penalty: each skip costs $5 (he expects to be served first)
+      score = Math.max(0, score - 5);
+      document.getElementById("score").textContent = score;
+      msg += ` 👑 -$5 (skipped The King!)`;
+      continue;
+    }
+    if (!shieldActive) s.patience--;
   }
 
-  // Find customers who just ran out of patience (not the one just served)
+  // ── Find customers who ran out of patience ────────────────────────────────────
   const departed = [];
   for (let i = 0; i < activeCustomers.length; i++) {
-    if (i !== servedIdx && activeCustomers[i].patience <= 0) departed.push(i);
+    if (i !== servedIdx && activeCustomers[i].patience <= 0
+        && activeCustomers[i].customer.ability !== "patientTipper") {
+      departed.push(i);
+    }
   }
 
-  // Replace served customer first
-  const keepSlots = activeCustomers.filter((_, i) => i !== servedIdx && !departed.includes(i));
+  // ── Replace served customer ───────────────────────────────────────────────────
+  const keepSlots    = activeCustomers.filter((_, i) => i !== servedIdx && !departed.includes(i));
   const usedDishNames = keepSlots.map(s => s.dish.name);
-
-  const newServed = dealCustomer(usedDishNames);
+  const newServed    = dealCustomer(usedDishNames);
   usedDishNames.push(newServed.dish.name);
   activeCustomers[servedIdx] = newServed;
 
-  // Time bonus for serving
   addTime(TIME_SERVE, "⏱️");
 
-  // Replace departed customers and apply penalty
+  // ── Replace departed customers and apply penalty ──────────────────────────────
   if (departed.length > 0) {
     score = Math.max(0, score - 5 * departed.length);
     document.getElementById("score").textContent = score;
@@ -795,8 +906,14 @@ function discardSelected() {
   [...selectedIdxs].sort((a, b) => b - a).forEach(i => hand.splice(i, 1));
   while (hand.length < 10) hand.push(drawIngredient());
   selectedIdxs = new Set();
+  // Mermaid Marina: each discarded card banks +$5 on her order
+  activeCustomers.forEach(s => {
+    if (s.customer.ability === "tidalBounty") s.tidalBonus += n * 5;
+  });
   addTime(-(n * TIME_DISCARD), "🗑️");
-  setStatus(`🗑️ Swapped ${n} ingredient${n > 1 ? "s" : ""} for new ones! (-${n * TIME_DISCARD}s)`, "");
+  const tidalMsg = activeCustomers.some(s => s.customer.ability === "tidalBounty")
+    ? ` 🧜 Marina's payout +$${n * 5}!` : "";
+  setStatus(`🗑️ Swapped ${n} ingredient${n > 1 ? "s" : ""} for new ones! (-${n * TIME_DISCARD}s)${tidalMsg}`, "");
   renderHand();
 }
 
