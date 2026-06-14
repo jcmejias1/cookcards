@@ -96,9 +96,12 @@
     display: grid; grid-template-columns: repeat(4, 1fr);
     gap: 7px; max-height: 420px; overflow-y: auto;
   }
+  .db-cust-card-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
   .db-cust-card {
-    position: relative; aspect-ratio: 5/7;
-    border-radius: 10px; overflow: hidden; cursor: pointer;
+    position: relative; width: 100%; aspect-ratio: 5/7;
+    border-radius: 10px; overflow: hidden;
     border: 3px solid #ccc; transition: border-color 0.15s, opacity 0.15s;
   }
   .db-cust-card.included { border-color: #27ae60; }
@@ -106,10 +109,15 @@
   .db-cust-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .db-cust-check {
     position: absolute; top: 4px; right: 4px;
-    width: 18px; height: 18px; background: #27ae60;
-    border-radius: 50%; display: flex; align-items: center;
+    min-width: 18px; height: 18px; background: #27ae60;
+    border-radius: 999px; padding: 0 4px;
+    display: flex; align-items: center;
     justify-content: center; color: white; font-size: 0.65em; font-weight: 900;
   }
+  .db-cust-qty {
+    display: flex; align-items: center; gap: 3px; justify-content: center; width: 100%;
+  }
+  .db-cust-qty .qty-display { width: 18px; font-size: 0.85em; }
 
   .db-footer { display: flex; flex-direction: column; align-items: center; gap: 8px; }
   .btn-play {
@@ -530,17 +538,18 @@ const SEAFOOD = new Set(["Salmon","Tuna","Shrimp","Octopus","Crab","Lobster","Sa
 const pool    = [];
 ingredients.forEach(ing => { for (let i = 0; i < ing.weight; i++) pool.push(ing); });
 
-const DECK_MAX  = 20;
-const DECK_MIN  = 10;
-const CUST_MIN  = 4;
+const DECK_MAX      = 100;
+const DECK_MIN      = 10;
+const CUST_DECK_MAX = 50;
+const CUST_MIN      = 4;
 
 // ── DECK STATE ────────────────────────────────────────────────────────────────
 let ingredientDeck  = [];
 let deckDiscard     = [];
 let customerDeck    = [];
 let customerDiscard = [];
-let deckIngCounts   = {};  // ingredient name → qty in deck
-let deckCustomerSet = new Set();
+let deckIngCounts      = {};  // ingredient name → qty in deck
+let deckCustomerCounts = {};  // customer name  → qty in deck
 
 // ── GAME STATE ────────────────────────────────────────────────────────────────
 let hand             = [];
@@ -595,20 +604,21 @@ function permMatch(chosen, required) {
 }
 
 // ── DECK BUILDER STATE ────────────────────────────────────────────────────────
-function totalIngCards() {
-  return Object.values(deckIngCounts).reduce((a, b) => a + b, 0);
-}
+function totalIngCards()  { return Object.values(deckIngCounts).reduce((a, b) => a + b, 0); }
+function totalCustCards() { return Object.values(deckCustomerCounts).reduce((a, b) => a + b, 0); }
 
 function initDefaultDeck() {
   deckIngCounts = {};
   ingredients.forEach(ing => { deckIngCounts[ing.name] = 0; });
   Object.assign(deckIngCounts, {
-    "Rice":3, "Nori":2, "Avocado":2, "Cucumber":1,
-    "Soy Sauce":2, "Chilli":1, "Wasabi":1,
-    "Salmon":2, "Tuna":2, "Shrimp":1,
-    "Octopus":1, "Crab":1, "Salmon Roe":1,
-  }); // total = 20
-  deckCustomerSet = new Set(customerList.map(c => c.name));
+    "Rice":12, "Nori":8, "Avocado":7, "Cucumber":5,
+    "Soy Sauce":7, "Chilli":5, "Wasabi":5,
+    "Salmon":8, "Tuna":7, "Shrimp":6,
+    "Octopus":5, "Crab":5, "Salmon Roe":4,
+    "Lobster":2, "Seafood Market":5, "Vegetable Farm":9,
+  }); // total = 100
+  deckCustomerCounts = {};
+  customerList.forEach(c => { deckCustomerCounts[c.name] = 3; }); // 16 × 3 = 48
 }
 
 function buildIngredientDeck() {
@@ -621,8 +631,12 @@ function buildIngredientDeck() {
 }
 
 function buildCustomerDeck() {
-  const list = customerList.filter(c => deckCustomerSet.has(c.name));
-  return shuffle([...list]);
+  const deck = [];
+  customerList.forEach(c => {
+    const n = deckCustomerCounts[c.name] || 0;
+    for (let i = 0; i < n; i++) deck.push({ ...c });
+  });
+  return shuffle(deck);
 }
 
 // ── DRAW FUNCTIONS ────────────────────────────────────────────────────────────
@@ -644,8 +658,7 @@ function drawCustomer() {
       customerDeck = shuffle([...customerDiscard]);
       customerDiscard = [];
     } else {
-      const fallback = customerList.filter(c => deckCustomerSet.has(c.name));
-      return { ...(pick(fallback.length ? fallback : customerList)) };
+      return { ...pick(customerList) };
     }
   }
   return { ...customerDeck.shift() };
@@ -700,7 +713,7 @@ function changeIngQty(name, delta) {
   const total = totalIngCards();
   const cur = deckIngCounts[name] || 0;
   if (delta > 0 && total >= DECK_MAX) return;
-  deckIngCounts[name] = Math.max(0, Math.min(4, cur + delta));
+  deckIngCounts[name] = Math.max(0, Math.min(15, cur + delta));
   renderIngredientBuilder();
 }
 
@@ -714,40 +727,41 @@ function updateIngCount() {
 function renderCustomerBuilder() {
   const grid = document.getElementById("db-cust-grid");
   grid.innerHTML = "";
+  const total = totalCustCards();
   customerList.forEach(cust => {
-    const included = deckCustomerSet.has(cust.name);
-    const card = document.createElement("div");
-    card.className = `db-cust-card ${included ? "included" : "excluded"}`;
-    card.title = cust.name;
-    card.onclick = () => toggleCustomerInDeck(cust.name);
-    card.innerHTML = `
-      <img src="images/Customers/${cust.img}" alt="${cust.name}">
-      ${included ? '<div class="db-cust-check">✓</div>' : ""}
+    const count = deckCustomerCounts[cust.name] || 0;
+    const wrap = document.createElement("div");
+    wrap.className = "db-cust-card-wrap";
+    wrap.innerHTML = `
+      <div class="db-cust-card ${count > 0 ? "included" : "excluded"}" title="${cust.name}">
+        <img src="images/Customers/${cust.img}" alt="${cust.name}">
+        ${count > 0 ? `<div class="db-cust-check">${count}</div>` : ""}
+      </div>
+      <div class="db-cust-qty">
+        <button class="qty-btn" onclick="changeCustQty('${cust.name}',-1)" ${count <= 0 ? "disabled" : ""}>−</button>
+        <span class="qty-display">${count}</span>
+        <button class="qty-btn" onclick="changeCustQty('${cust.name}',1)" ${total >= CUST_DECK_MAX ? "disabled" : ""}>+</button>
+      </div>
     `;
-    grid.appendChild(card);
+    grid.appendChild(wrap);
   });
   updateCustCount();
 }
 
-function toggleCustomerInDeck(name) {
-  if (deckCustomerSet.has(name)) {
-    if (deckCustomerSet.size <= CUST_MIN) {
-      document.getElementById("deck-warning").textContent = `⚠️ Need at least ${CUST_MIN} customers!`;
-      return;
-    }
-    deckCustomerSet.delete(name);
-  } else {
-    deckCustomerSet.add(name);
-  }
+function changeCustQty(name, delta) {
+  const total = totalCustCards();
+  const cur = deckCustomerCounts[name] || 0;
+  if (delta > 0 && total >= CUST_DECK_MAX) return;
+  deckCustomerCounts[name] = Math.max(0, Math.min(5, cur + delta));
   document.getElementById("deck-warning").textContent = "";
   renderCustomerBuilder();
 }
 
 function updateCustCount() {
-  const count = deckCustomerSet.size;
+  const total = totalCustCards();
   const el = document.getElementById("db-cust-count");
-  el.textContent = `${count}/${customerList.length}`;
-  el.className = "db-count-badge" + (count < CUST_MIN ? " low" : " full");
+  el.textContent = `${total}/${CUST_DECK_MAX}`;
+  el.className = "db-count-badge" + (total >= CUST_DECK_MAX ? " full" : total < CUST_MIN ? " low" : "");
 }
 
 function startGameWithDeck() {
@@ -756,8 +770,8 @@ function startGameWithDeck() {
     document.getElementById("deck-warning").textContent = `⚠️ Add at least ${DECK_MIN} ingredient cards (have ${total})`;
     return;
   }
-  if (deckCustomerSet.size < CUST_MIN) {
-    document.getElementById("deck-warning").textContent = `⚠️ Include at least ${CUST_MIN} customers (have ${deckCustomerSet.size})`;
+  if (totalCustCards() < CUST_MIN) {
+    document.getElementById("deck-warning").textContent = `⚠️ Add at least ${CUST_MIN} customer cards (have ${totalCustCards()})`;
     return;
   }
 
