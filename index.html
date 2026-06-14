@@ -290,6 +290,65 @@
   .status.error { color:#b03020; }
   @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.12)} 100%{transform:scale(1)} }
 
+  /* ── CARD SHOP SCREEN ───────────────────────────────────────────────────────── */
+  #screen-card-shop { align-items: center; background: rgba(0,0,0,0.45); padding-bottom: 32px; }
+  .cshop-body {
+    width: 100%; max-width: 960px;
+    display: flex; gap: 20px; align-items: flex-start; padding: 0 20px;
+  }
+  .cshop-section { flex: 1; min-width: 0; }
+  .cshop-section-title {
+    font-size: 1em; font-weight: 900; color: white;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .cshop-ing-list {
+    display: flex; flex-direction: column; gap: 6px;
+    max-height: 70vh; overflow-y: auto; padding-right: 4px;
+  }
+  .cshop-ing-row {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(253,243,227,0.92); border-radius: 10px; padding: 6px 10px;
+  }
+  .cshop-ing-img { width: 38px; height: 38px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
+  .cshop-ing-name { flex: 1; font-size: 0.82em; font-weight: 700; color: #3d2b1f; min-width: 0; }
+  .cshop-rarity { font-size: 0.62em; font-weight: 800; border-radius: 999px; padding: 1px 7px; white-space: nowrap; }
+  .cshop-owned { font-size: 0.75em; font-weight: 800; color: #7a6255; white-space: nowrap; }
+  .btn-buy-card {
+    background: #2980b9; color: white; border: none; border-radius: 999px;
+    padding: 4px 12px; font-size: 0.75em; font-weight: 900;
+    cursor: pointer; font-family: inherit; white-space: nowrap;
+  }
+  .btn-buy-card:hover { background: #1f6a99; }
+  .btn-buy-card:disabled { background: #aaa; cursor: default; }
+  .cshop-cust-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; max-height: 70vh; overflow-y: auto;
+  }
+  .cshop-cust-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .cshop-cust-portrait {
+    position: relative; width: 100%; aspect-ratio: 5/7;
+    border-radius: 10px; overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.2);
+  }
+  .cshop-cust-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cshop-cust-owned {
+    position: absolute; top: 4px; right: 4px;
+    background: rgba(0,0,0,0.65); color: white;
+    border-radius: 999px; padding: 1px 7px;
+    font-size: 0.65em; font-weight: 900;
+  }
+  .cshop-cust-name { font-size: 0.62em; font-weight: 800; color: white; text-align: center; line-height: 1.2; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+  .btn-buy-cust {
+    background: #2980b9; color: white; border: none; border-radius: 999px;
+    padding: 3px 10px; font-size: 0.7em; font-weight: 900;
+    cursor: pointer; font-family: inherit; width: 100%;
+  }
+  .btn-buy-cust:hover { background: #1f6a99; }
+  .btn-buy-cust:disabled { background: #aaa; cursor: default; }
+
+  .btn-title-cshop { background: #2980b9; color: white; box-shadow: 0 6px 0 #1a5f8a; }
+
   @media (max-width:700px) {
     .game-layout { flex-direction:column; }
     .left-panel { width:100%; }
@@ -298,6 +357,8 @@
     .db-cust-grid { grid-template-columns:repeat(4,1fr); }
     .sell-body { flex-direction:column; }
     .sell-cust-grid { grid-template-columns:repeat(4,1fr); }
+    .cshop-body { flex-direction:column; }
+    .cshop-cust-grid { grid-template-columns:repeat(4,1fr); }
   }
 </style>
 </head>
@@ -311,6 +372,9 @@
     <div class="title-btns">
       <button class="btn-title btn-title-shop" onclick="goToShop()">
         🎴 Buy Packs <span class="title-pack-cost">$5 each</span>
+      </button>
+      <button class="btn-title btn-title-cshop" onclick="goToCardShop()">
+        🛒 Card Shop
       </button>
       <button class="btn-title btn-title-sell" onclick="goToSell()">
         🏪 Sell Cards
@@ -331,6 +395,25 @@
   </div>
   <div class="shop-body">
     <div id="pack-area"></div>
+  </div>
+</div>
+
+<!-- ── CARD SHOP SCREEN ───────────────────────────────────────────────────────── -->
+<div id="screen-card-shop" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="showScreen('screen-title')">← Back</button>
+    <div class="topbar-title">🛒 Card Shop</div>
+    <div class="wallet-pill" id="card-shop-wallet">💰 $0</div>
+  </div>
+  <div class="cshop-body">
+    <div class="cshop-section">
+      <div class="cshop-section-title">🥗 Ingredients</div>
+      <div class="cshop-ing-list" id="cshop-ing-list"></div>
+    </div>
+    <div class="cshop-section">
+      <div class="cshop-section-title">👥 Customers <span class="sell-price-tag">$6 each</span></div>
+      <div class="cshop-cust-grid" id="cshop-cust-grid"></div>
+    </div>
   </div>
 </div>
 
@@ -459,6 +542,14 @@ const ingredients = [
   { img:"lobster.png",   name:"Lobster",        weight:1 },
   { img:"market.png",    name:"Seafood Market", weight:2, isSeafoodWild:true },
   { img:"farm.png",      name:"Vegetable Farm", weight:2, isVegWild:true },
+  // Italian expansion
+  { emoji:"🍝", name:"Pasta",      weight:0, italian:true },
+  { emoji:"🍅", name:"Tomato",     weight:0, italian:true },
+  { emoji:"🌿", name:"Basil",      weight:0, italian:true },
+  { emoji:"🧀", name:"Mozzarella", weight:0, italian:true },
+  { emoji:"🫒", name:"Olive Oil",  weight:0, italian:true },
+  { emoji:"🥩", name:"Prosciutto", weight:0, italian:true },
+  { emoji:"🍄", name:"Truffle",    weight:0, italian:true },
 ];
 
 const dishes = [
@@ -482,6 +573,12 @@ const dishes = [
   { emoji:"🌈", name:"Rainbow Roll",       price:40, recipe:["Rice","Tuna","Salmon","Avocado"] },
   { emoji:"🦄", name:"Unicorn Roll",       price:42, recipe:["Rice","Nori","Avocado","Salmon Roe"] },
   { emoji:"🦞", name:"Royal Lobster Roll", price:70, recipe:["Rice","Nori","Lobster","Salmon Roe"] },
+  // Italian dishes
+  { emoji:"🍝", name:"Spaghetti Pomodoro",  price:14, recipe:["Pasta","Tomato","Basil"] },
+  { emoji:"🧀", name:"Caprese Salad",        price:16, recipe:["Tomato","Mozzarella","Basil","Olive Oil"] },
+  { emoji:"🍕", name:"Margherita Special",   price:18, recipe:["Tomato","Mozzarella","Basil"] },
+  { emoji:"🥩", name:"Pasta Carbonara",      price:22, recipe:["Pasta","Prosciutto","Olive Oil"] },
+  { emoji:"🍄", name:"Truffle Tagliatelle",  price:50, recipe:["Pasta","Truffle","Olive Oil"] },
 ];
 
 const customerList = [
@@ -505,11 +602,12 @@ const customerList = [
 
 // ── RARITY ────────────────────────────────────────────────────────────────────
 const ING_RARITY = {
-  common:    ["Rice","Nori","Avocado","Cucumber","Soy Sauce"],
-  uncommon:  ["Salmon","Tuna","Shrimp","Wasabi","Chilli"],
-  rare:      ["Octopus","Crab","Salmon Roe","Seafood Market","Vegetable Farm"],
-  legendary: ["Lobster"],
+  common:    ["Rice","Nori","Avocado","Cucumber","Soy Sauce","Pasta","Tomato","Basil"],
+  uncommon:  ["Salmon","Tuna","Shrimp","Wasabi","Chilli","Mozzarella","Olive Oil"],
+  rare:      ["Octopus","Crab","Salmon Roe","Seafood Market","Vegetable Farm","Prosciutto"],
+  legendary: ["Lobster","Truffle"],
 };
+const ITALIAN_ING = { common:["Pasta","Tomato","Basil"], uncommon:["Mozzarella","Olive Oil"], rare:["Prosciutto"], legendary:["Truffle"] };
 const RARITY_STYLE = {
   common:    { bg:"#eee",    border:"#bbb",    text:"#555",    label:"Common" },
   uncommon:  { bg:"#ddeeff", border:"#3498db", text:"#1a5f9e", label:"Uncommon" },
@@ -549,10 +647,28 @@ const packTypes = [
       ];
     }
   },
+  {
+    id:"italian", name:"Italian Expansion", emoji:"🍝",
+    desc:"5 Italian cards\nPasta, cheese, truffles & more",
+    bg:"linear-gradient(160deg,#c0392b,#27ae60)",
+    draw() {
+      return [
+        drawItalianCard("common"), drawItalianCard("common"), drawItalianCard("common"),
+        drawItalianCard("uncommon"),
+        Math.random()<0.15 ? drawItalianCard("legendary") : drawItalianCard("rare"),
+      ];
+    }
+  },
 ];
 
 function drawIngCard(rarity) {
   const pool = ING_RARITY[rarity] || ING_RARITY.common;
+  const name = pick(pool);
+  return { type:"ingredient", ...ingredients.find(i=>i.name===name), rarity };
+}
+
+function drawItalianCard(rarity) {
+  const pool = ITALIAN_ING[rarity] || ITALIAN_ING.common;
   const name = pick(pool);
   return { type:"ingredient", ...ingredients.find(i=>i.name===name), rarity };
 }
@@ -611,7 +727,7 @@ function spendFromWallet(amount) {
 }
 
 function refreshWalletDisplays() {
-  ["title-wallet","shop-wallet","sell-wallet"].forEach(id => {
+  ["title-wallet","shop-wallet","sell-wallet","card-shop-wallet"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.textContent = `💰 $${wallet}`;
   });
@@ -627,6 +743,12 @@ function goToShop() {
   showScreen("screen-shop");
   refreshWalletDisplays();
   renderPackSelection();
+}
+
+function goToCardShop() {
+  showScreen("screen-card-shop");
+  refreshWalletDisplays();
+  renderCardShop();
 }
 
 function goToSell() {
@@ -652,6 +774,77 @@ function closeDeckBuilderToTitle() {
   refreshWalletDisplays();
 }
 
+// ── CARD SHOP ─────────────────────────────────────────────────────────────────
+const ING_SHOP_PRICE = { common: 2, uncommon: 4, rare: 8, legendary: 20 };
+const CUST_SHOP_PRICE = 6;
+
+function renderCardShop() {
+  renderCardShopIngredients();
+  renderCardShopCustomers();
+}
+
+function renderCardShopIngredients() {
+  const list = document.getElementById("cshop-ing-list");
+  list.innerHTML = "";
+  ingredients.forEach(ing => {
+    const rarity = ingRarityOf(ing.name);
+    const price = ING_SHOP_PRICE[rarity];
+    const rs = RARITY_STYLE[rarity];
+    const owned = collection.ingredients[ing.name] || 0;
+    const canAfford = wallet >= price;
+    const row = document.createElement("div");
+    row.className = "cshop-ing-row";
+    row.innerHTML = `
+      ${ingListImgHtml(ing,"cshop-ing-img")}
+      <span class="cshop-ing-name">${ing.name}</span>
+      <span class="cshop-rarity" style="background:${rs.border};color:white">${rs.label}</span>
+      <span class="cshop-owned">×${owned}</span>
+      <button class="btn-buy-card" onclick="buyCardFromShop('ingredient','${ing.name}')" ${canAfford?"":"disabled"}>
+        Buy ($${price})
+      </button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function renderCardShopCustomers() {
+  const grid = document.getElementById("cshop-cust-grid");
+  grid.innerHTML = "";
+  customerList.forEach(cust => {
+    const owned = collection.customers[cust.name] || 0;
+    const canAfford = wallet >= CUST_SHOP_PRICE;
+    const wrap = document.createElement("div");
+    wrap.className = "cshop-cust-wrap";
+    wrap.innerHTML = `
+      <div class="cshop-cust-portrait">
+        <img src="images/Customers/${cust.img}" alt="${cust.name}">
+        <div class="cshop-cust-owned">×${owned}</div>
+      </div>
+      <div class="cshop-cust-name">${cust.name}</div>
+      <button class="btn-buy-cust" onclick="buyCardFromShop('customer','${cust.name}')" ${canAfford?"":"disabled"}>
+        Buy ($${CUST_SHOP_PRICE})
+      </button>
+    `;
+    grid.appendChild(wrap);
+  });
+}
+
+function buyCardFromShop(type, name) {
+  if (type === "ingredient") {
+    const rarity = ingRarityOf(name);
+    const price = ING_SHOP_PRICE[rarity];
+    if (!spendFromWallet(price)) return;
+    collection.ingredients[name] = (collection.ingredients[name] || 0) + 1;
+    saveCollection();
+    renderCardShopIngredients();
+  } else {
+    if (!spendFromWallet(CUST_SHOP_PRICE)) return;
+    collection.customers[name] = (collection.customers[name] || 0) + 1;
+    saveCollection();
+    renderCardShopCustomers();
+  }
+}
+
 // ── SELL SCREEN ───────────────────────────────────────────────────────────────
 function renderSellScreen() {
   renderSellIngredients();
@@ -666,7 +859,7 @@ function renderSellIngredients() {
     const row = document.createElement("div");
     row.className = "sell-ing-row";
     row.innerHTML = `
-      <img class="sell-ing-img" src="images/ingredients/${ing.img}" alt="${ing.name}">
+      ${ingListImgHtml(ing,"sell-ing-img")}
       <span class="sell-ing-name">${ing.name}</span>
       <span class="sell-qty">×${qty}</span>
       <button class="btn-sell-card" onclick="sellCard('ingredient','${ing.name}')" ${qty<=0?"disabled":""}>
@@ -790,8 +983,11 @@ function flipRevealCard(i, card) {
   front.style.borderColor = rs.border;
 
   if (card.type==="ingredient") {
+    const imgHtml = card.img
+      ? `<img class="r-img" src="images/ingredients/${card.img}" alt="${card.name}">`
+      : `<div style="font-size:3.2em;line-height:1">${card.emoji||"🍽️"}</div>`;
     front.innerHTML = `
-      <img class="r-img" src="images/ingredients/${card.img}" alt="${card.name}">
+      ${imgHtml}
       <div class="r-name" style="color:${rs.text}">${card.name}</div>
       <span class="rarity-badge" style="background:${rs.border};color:white">${rs.label}</span>`;
   } else {
@@ -875,7 +1071,13 @@ function shuffle(arr) {
 }
 function ingImg(name) {
   const i=ingredients.find(x=>x.name===name);
-  return i?`<img src="images/ingredients/${i.img}" alt="${name}" class="recipe-ing-img">`:"🍽️";
+  if(!i) return "🍽️";
+  return i.img?`<img src="images/ingredients/${i.img}" alt="${name}" class="recipe-ing-img">`:(i.emoji||"🍽️");
+}
+function ingListImgHtml(ing, cls) {
+  return ing.img
+    ? `<img class="${cls}" src="images/ingredients/${ing.img}" alt="${ing.name}">`
+    : `<span class="${cls}" style="display:flex;align-items:center;justify-content:center;font-size:1.6em">${ing.emoji||"🍽️"}</span>`;
 }
 function permMatch(chosen,required) {
   if(chosen.length===0) return required.length===0;
@@ -969,7 +1171,7 @@ function renderIngredientBuilder() {
     const owned=collection.ingredients[ing.name]||0;
     const row=document.createElement("div"); row.className="db-ing-row";
     row.innerHTML=`
-      <img class="db-ing-img" src="images/ingredients/${ing.img}" alt="${ing.name}">
+      ${ingListImgHtml(ing,"db-ing-img")}
       <span class="db-ing-name">${ing.name}</span>
       <span class="db-owned">own:${owned}</span>
       <div class="qty-controls">
