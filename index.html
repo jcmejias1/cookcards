@@ -151,39 +151,35 @@
     text-align: center; min-width: 0;
     aspect-ratio: 4 / 5;
     overflow: hidden;
+    position: relative;
   }
   .ing-card:hover { transform: translateY(-3px); }
   .ing-card.selected { border-color: #f39c12; box-shadow: 0 0 0 3px #f39c12; }
-  .ing-card.wild-card {
-    background: linear-gradient(135deg, #fffde7, #fff8c4);
-    border-color: #f1c40f; box-shadow: 0 0 10px rgba(241,196,15,0.5);
-  }
-  .ing-card.wild-card.selected { border-color: #e67e22; box-shadow: 0 0 0 3px #e67e22; }
-
   /* Ingredient image fills the full card */
   .i-img  { width: 120%; height: 107%; object-fit: contain; }
-  /* Keep emoji fallback for Wild cards that have no image file */
+  /* Emoji fallback */
   .i-emoji { font-size: clamp(32px, 10vw, 80px); line-height: 1; }
 
-  /* Seafood Market: ocean-blue gradient */
-  .seafood-wild-card {
-    background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
-    border-color: #0097a7; box-shadow: 0 0 10px rgba(0,151,167,0.45);
+  /* Delivery Truck: warm orange — matches any fish OR vegetable */
+  .delivery-wild-card {
+    background: linear-gradient(135deg, #fff8e1, #ffe0b2, #e1f5fe);
+    border-color: #ff8f00; box-shadow: 0 0 12px rgba(255,143,0,0.55);
   }
-  .seafood-wild-card.selected { border-color: #006064; box-shadow: 0 0 0 3px #006064; }
-
-  /* Vegetable Farm: earthy-green gradient */
-  .veg-wild-card {
-    background: linear-gradient(135deg, #f1f8e9, #dcedc8);
-    border-color: #7cb342; box-shadow: 0 0 10px rgba(124,179,66,0.45);
-  }
-  .veg-wild-card.selected { border-color: #33691e; box-shadow: 0 0 0 3px #33691e; }
+  .delivery-wild-card.selected { border-color: #e65100; box-shadow: 0 0 0 3px #e65100; }
 
   /* Tiny ingredient image inside recipe chips on customer cards */
   .recipe-ing-img { width: 11px; height: 11px; object-fit: contain; vertical-align: middle; }
 
   /* ── ACTION BAR ───────────────────────────────────────────────────────────── */
   .actions { display: flex; gap: 12px; justify-content: center; }
+  .serve-hint {
+    min-height: 1.4em; text-align: center;
+    font-size: 0.82em; font-weight: 600; color: #555;
+    padding: 2px 0;
+  }
+  .serve-hint.ready  { color: #27ae60; }
+  .serve-hint.needs  { color: #e67e22; }
+  .serve-hint.over   { color: #e74c3c; }
   .btn-serve {
     background: #d4601a; box-shadow: 0 5px 0 #9a3f0a;
     color: white; border: none; border-radius: 999px;
@@ -209,13 +205,8 @@
   }
   .btn-pause:active { transform: translateY(4px); box-shadow: none; }
 
-  /* When the game is paused, dim the cards so the player can't memorise
-     positions. pointer-events: none blocks all clicks while blacked out.  */
-  .blacked-out {
-    filter: brightness(0.03);
-    pointer-events: none;
-    transition: filter 0.4s;
-  }
+  /* Legacy class kept but no longer used for pause — see renderPausedCards() */
+  .blacked-out { filter: brightness(0.03); pointer-events: none; transition: filter 0.4s; }
 
   /* ── TIMER ────────────────────────────────────────────────────────────────── */
   .timer {
@@ -257,18 +248,6 @@
   }
   .pop { animation: pop 0.3s ease; }
 
-  /* ── LOGO ────────────────────────────────────────────────────────────────── */
-  .logo-bar {
-    text-align: center;
-    margin-bottom: 10px;
-  }
-  .game-logo {
-    height: 144px;
-    width: auto;
-    object-fit: contain;
-    filter: drop-shadow(0 3px 8px rgba(0,0,0,0.25));
-  }
-
   /* ── RESPONSIVE: narrow screens ───────────────────────────────────────────── */
   @media (max-width: 700px) {
     .game-layout { flex-direction: column; gap: 8px; }
@@ -277,13 +256,225 @@
     .sidebar { flex-direction: row; flex-wrap: wrap; max-width: none; justify-content: space-between; align-items: center; }
     .customer-card { aspect-ratio: 5/7; }
   }
+
+  /* ── WELCOME OVERLAY ──────────────────────────────────────────────────────── */
+  #welcome-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: url("images/assets/BackSplash.png") center/cover no-repeat;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.6s;
+  }
+  #welcome-overlay.fade-out { opacity: 0; pointer-events: none; }
+
+  #welcome-logo-phase {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    animation: wlFadeIn 0.8s ease forwards;
+  }
+  #welcome-logo-phase.fade-out { animation: wlFadeOut 0.5s ease forwards; }
+  #welcome-logo-phase img { width: min(420px, 72vw); filter: drop-shadow(0 6px 24px rgba(0,0,0,0.5)); }
+
+  @keyframes wlFadeIn  { from { opacity:0; transform:scale(0.88); } to { opacity:1; transform:scale(1); } }
+  @keyframes wlFadeOut { from { opacity:1; } to { opacity:0; } }
+
+  #welcome-instr-phase {
+    display: none;
+    flex-direction: column; align-items: center;
+    width: min(780px, 96vw); max-height: 96vh; overflow-y: auto;
+    background: rgba(20,10,5,0.82);
+    border-radius: 22px; padding: 32px 36px 24px;
+    box-shadow: 0 12px 60px rgba(0,0,0,0.7);
+    animation: wlFadeIn 0.5s ease forwards;
+    gap: 18px;
+  }
+  #welcome-instr-phase img.instr-logo {
+    width: min(260px, 55vw);
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+    margin-bottom: 4px;
+  }
+  .instr-tagline {
+    color: #ffe8b0; font-size: 1.05em; font-weight: 700;
+    text-align: center; letter-spacing: 0.02em;
+  }
+  .instr-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%;
+  }
+  .instr-card {
+    background: rgba(255,255,255,0.07); border-radius: 14px;
+    padding: 14px 16px; display: flex; flex-direction: column; gap: 7px;
+  }
+  .instr-card h3 {
+    margin: 0; font-size: 0.88em; font-weight: 900; color: #ffd580;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .instr-card p { margin: 0; font-size: 0.78em; color: #e8ddd0; line-height: 1.5; }
+  .instr-card .card-row {
+    display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+  }
+  .instr-card .card-row img {
+    width: 38px; height: 48px; object-fit: cover; border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  .instr-card .card-row .mini-emoji {
+    font-size: 1.8em; line-height: 1;
+  }
+  .instr-cta {
+    color: #fff; font-size: 0.9em; font-weight: 800;
+    background: rgba(212,96,26,0.88); border-radius: 999px;
+    padding: 12px 32px; letter-spacing: 0.05em;
+    animation: ctaPulse 1.5s ease-in-out infinite;
+    cursor: pointer; border: none; font-family: inherit;
+    margin-top: 4px;
+  }
+  @keyframes ctaPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(212,96,26,0.5); }
+    50%      { box-shadow: 0 0 0 10px rgba(212,96,26,0); }
+  }
+  .instr-lang-row {
+    display: flex; justify-content: flex-end; width: 100%; margin-bottom: -8px;
+  }
+  .btn-lang {
+    background: rgba(255,255,255,0.12); color: #ffe8b0;
+    border: 1px solid rgba(255,232,176,0.35); border-radius: 999px;
+    padding: 5px 14px; font-size: 0.78em; font-weight: 800;
+    cursor: pointer; font-family: inherit; letter-spacing: 0.04em;
+    transition: background 0.2s;
+  }
+  .btn-lang:hover { background: rgba(255,255,255,0.22); }
+
+  /* ── TCG CARD BACK (shown when paused) ────────────────────────────────────── */
+  .card-back {
+    width: 100%; height: 100%;
+    background: url("images/assets/BackSplash.png") center/cover no-repeat;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  .card-back img {
+    width: 72%; opacity: 0.92;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.6));
+  }
 </style>
 </head>
 <body>
 
-<!-- Logo banner -->
-<div class="logo-bar">
-  <img src="images/assets/CookCardsLogo.png" alt="Cook Cards" class="game-logo">
+<!-- ── WELCOME OVERLAY ─────────────────────────────────────────────────────── -->
+<div id="welcome-overlay">
+  <div id="welcome-logo-phase">
+    <img src="images/assets/CookCardsLogo.png" alt="Cook Cards">
+  </div>
+  <div id="welcome-instr-phase">
+    <img class="instr-logo" src="images/assets/CookCardsLogo.png" alt="Cook Cards">
+    <div class="instr-lang-row">
+      <button class="btn-lang" id="btn-lang">🌐 Español</button>
+    </div>
+
+    <!-- ── ENGLISH ── -->
+    <div id="instr-en">
+      <div class="instr-tagline">A fast-paced sushi restaurant card game — serve dishes before time runs out!</div>
+      <div class="instr-grid">
+        <div class="instr-card">
+          <h3>🎯 How to Play</h3>
+          <p>Customers arrive with a dish order. Select the matching ingredient cards from your hand, then tap <strong>Serve!</strong> to earn money. Each correct order gives you bonus time. Wrong orders cost patience!</p>
+        </div>
+        <div class="instr-card">
+          <h3>🃏 Ingredient Cards</h3>
+          <p>Your hand holds 10 cards drawn from your deck. Tap cards to select them for serving. Discard extras to draw replacements.</p>
+          <div class="card-row">
+            <img src="images/ingredients/mini/006_Rice.png" alt="Rice">
+            <img src="images/ingredients/mini/002_Salmon.png" alt="Salmon">
+            <img src="images/ingredients/mini/004_Nori.png" alt="Nori">
+            <img src="images/ingredients/mini/010_Avocado.png" alt="Avocado">
+            <img src="images/ingredients/mini/001_Tuna.png" alt="Tuna">
+          </div>
+        </div>
+        <div class="instr-card">
+          <h3>👥 Customers & Abilities</h3>
+          <p>Each customer has a unique ability. Some boost earnings, others change the rules. Serve them in the right order to chain bonuses!</p>
+          <div class="card-row">
+            <img src="images/Customers/mini/001_Cowboy_Carl.png" alt="Cowboy Carl">
+            <img src="images/Customers/mini/004_The_King.png" alt="The King">
+            <img src="images/Customers/mini/007_Mermaid_Marina.png" alt="Mermaid Marina">
+            <img src="images/Customers/mini/013_Robot_3000.png" alt="Robot 3000">
+          </div>
+        </div>
+        <div class="instr-card">
+          <h3>🚛 Wildcard Delivery Truck</h3>
+          <p>A universal wildcard — substitutes <strong>any fish or vegetable</strong> ingredient in a recipe. Use it wisely!</p>
+          <div class="card-row">
+            <img src="images/ingredients/mini/013_Wildcard.png" alt="Wildcard Delivery Truck" style="width:48px;height:48px;object-fit:contain;">
+            <p style="margin:0;font-size:0.75em;color:#ffe0b2">Replaces: 🐟 Salmon · 🐠 Tuna · 🦐 Shrimp · 🥑 Avocado · 🍚 Rice… and more!</p>
+          </div>
+        </div>
+        <div class="instr-card">
+          <h3>⏱️ Timer & Patience</h3>
+          <p>You start with 2 min 30 sec. Serving a customer adds 30 seconds. Customers have patience stars — if you skip them too long, they leave!</p>
+        </div>
+        <div class="instr-card">
+          <h3>⭐ Special Wilds</h3>
+          <p><strong>Astronaut Al</strong> hides one recipe slot as ❓ — any ingredient fits. <strong>Uni the Unicorn</strong> turns a random card into a Wildcard Delivery Truck!</p>
+          <div class="card-row">
+            <img src="images/Customers/mini/014_Astronaut_Al.png" alt="Astronaut Al">
+            <img src="images/Customers/mini/015_Uriel_the_Unicorn.png" alt="Uni the Unicorn">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SPANISH ── -->
+    <div id="instr-es" style="display:none">
+      <div class="instr-tagline">¡Un juego de cartas de restaurante de sushi — sirve platillos antes de que se acabe el tiempo!</div>
+      <div class="instr-grid">
+        <div class="instr-card">
+          <h3>🎯 Cómo Jugar</h3>
+          <p>Los clientes llegan con un pedido. Selecciona las cartas de ingredientes correctas y presiona <strong>¡Servir!</strong> para ganar dinero. Cada pedido correcto da tiempo extra. ¡Los errores cuestan paciencia!</p>
+        </div>
+        <div class="instr-card">
+          <h3>🃏 Cartas de Ingredientes</h3>
+          <p>Tu mano tiene 10 cartas de tu mazo. Toca las cartas para seleccionarlas al servir. Descarta las extras para obtener reemplazos.</p>
+          <div class="card-row">
+            <img src="images/ingredients/mini/006_Rice.png" alt="Arroz">
+            <img src="images/ingredients/mini/002_Salmon.png" alt="Salmón">
+            <img src="images/ingredients/mini/004_Nori.png" alt="Nori">
+            <img src="images/ingredients/mini/010_Avocado.png" alt="Aguacate">
+            <img src="images/ingredients/mini/001_Tuna.png" alt="Atún">
+          </div>
+        </div>
+        <div class="instr-card">
+          <h3>👥 Clientes y Habilidades</h3>
+          <p>Cada cliente tiene una habilidad única. Algunos aumentan las ganancias, otros cambian las reglas. ¡Sírvelos en el orden correcto para encadenar bonificaciones!</p>
+          <div class="card-row">
+            <img src="images/Customers/mini/001_Cowboy_Carl.png" alt="Cowboy Carl">
+            <img src="images/Customers/mini/004_The_King.png" alt="El Rey">
+            <img src="images/Customers/mini/007_Mermaid_Marina.png" alt="Mermaid Marina">
+            <img src="images/Customers/mini/013_Robot_3000.png" alt="Robot 3000">
+          </div>
+        </div>
+        <div class="instr-card">
+          <h3>🚛 Comodín Camión de Reparto</h3>
+          <p>Un comodín universal — sustituye <strong>cualquier ingrediente de pescado o verdura</strong> en una receta. ¡Úsalo sabiamente!</p>
+          <div class="card-row">
+            <img src="images/ingredients/mini/013_Wildcard.png" alt="Comodín Camión" style="width:48px;height:48px;object-fit:contain;">
+            <p style="margin:0;font-size:0.75em;color:#ffe0b2">Reemplaza: 🐟 Salmón · 🐠 Atún · 🦐 Camarón · 🥑 Aguacate · 🍚 Arroz… ¡y más!</p>
+          </div>
+        </div>
+        <div class="instr-card">
+          <h3>⏱️ Tiempo y Paciencia</h3>
+          <p>Comienzas con 2 min 30 seg. Servir a un cliente agrega 30 segundos. Los clientes tienen estrellas de paciencia — ¡si los ignoras demasiado, se van!</p>
+        </div>
+        <div class="instr-card">
+          <h3>⭐ Comodines Especiales</h3>
+          <p><strong>Astronauta Al</strong> oculta un slot de receta como ❓ — cualquier ingrediente funciona. <strong>Uriel la Unicornio</strong> convierte una carta al azar en un Comodín Camión de Reparto.</p>
+          <div class="card-row">
+            <img src="images/Customers/mini/014_Astronaut_Al.png" alt="Astronauta Al">
+            <img src="images/Customers/mini/015_Uriel_the_Unicorn.png" alt="Uriel la Unicornio">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="instr-cta" id="instr-start-btn">▶ Click or press Enter to Start!</button>
+  </div>
 </div>
 
 <!-- Two-column layout: ingredient grid on the left, controls + customers on the right -->
@@ -296,6 +487,7 @@
       <button class="btn-serve"   onclick="serve()">🍽️ Serve!</button>
       <button class="btn-discard" onclick="discardSelected()">🗑️ Discard Selected</button>
     </div>
+    <div class="serve-hint" id="serve-hint"></div>
     <div class="status" id="status">Pick a customer, then tap their ingredients!</div>
   </div>
 
@@ -317,28 +509,24 @@
 </div>
 
 <script>
-// ── INGREDIENTS (14) ─────────────────────────────────────────────────────────
+// ── INGREDIENTS (13) ─────────────────────────────────────────────────────────
 const ingredients = [
-  { img:"rice.png",      name:"Rice",             weight:7 },
-  { img:"nori.png",      name:"Nori",             weight:6 },
-  { img:"avocado.png",   name:"Avocado",          weight:4 },
-  { img:"cucumber.png",  name:"Cucumber",         weight:3 },
-  { img:"soy.png",       name:"Soy Sauce",        weight:4 },
-  { img:"chilli.png",    name:"Chilli",           weight:3 },
-  { img:"wasabi.png",    name:"Wasabi",           weight:3 },
-  { img:"salmon.png",    name:"Salmon",           weight:3 },
-  { img:"tuna.png",      name:"Tuna",             weight:3 },
-  { img:"shrimp.png",    name:"Shrimp",           weight:3 },
-  { img:"octopus.png",   name:"Octopus",          weight:2 },
-  { img:"crab.png",      name:"Crab",             weight:2 },
-  { img:"salmonroe.png", name:"Salmon Roe",       weight:2 },
-  { img:"lobster.png",   name:"Lobster",          weight:1 },
-  // Wildcard ingredients — substitute any seafood or any veggie in a recipe
-  { img:"market.png",    name:"Seafood Market",   weight:2, isSeafoodWild:true },
-  { img:"farm.png",      name:"Vegetable Farm",   weight:2, isVegWild:true },
+  { img:"mini/006_Rice.png",         name:"Rice",                    weight:7 },
+  { img:"mini/004_Nori.png",         name:"Nori",                    weight:6 },
+  { img:"mini/010_Avocado.png",      name:"Avocado",                 weight:4 },
+  { img:"mini/008_Soy_Sauce.png",    name:"Soy Sauce",               weight:4 },
+  { img:"mini/007_Chili_Pepper.png", name:"Chilli",                  weight:3 },
+  { img:"mini/005_Wasabi.png",       name:"Wasabi",                  weight:3 },
+  { img:"mini/002_Salmon.png",       name:"Salmon",                  weight:3 },
+  { img:"mini/001_Tuna.png",         name:"Tuna",                    weight:3 },
+  { img:"mini/009_Shrimp.png",       name:"Shrimp",                  weight:3 },
+  { img:"mini/012_Octopus.png",      name:"Octopus",                 weight:2 },
+  { img:"mini/011_Crab.png",         name:"Crab",                    weight:2 },
+  { img:"mini/003_Salmon_Roe.png",   name:"Salmon Roe",              weight:2 },
+  { img:"mini/013_Wildcard.png",     name:"Wildcard Delivery Truck", weight:1, isDeliveryWild:true },
 ];
 
-// ── 20 DISHES ─────────────────────────────────────────────────────────────────
+// ── DISHES ────────────────────────────────────────────────────────────────────
 const dishes = [
   // Simple nigiri (2 ingredients)
   { emoji:"🍣", name:"Salmon Nigiri",       price:18, recipe:["Rice","Salmon"] },
@@ -347,54 +535,53 @@ const dishes = [
 
   // Classic rolls (3 ingredients)
   { emoji:"🥗", name:"Avocado Roll",         price:15, recipe:["Rice","Nori","Avocado"] },
-  { emoji:"🥒", name:"Cucumber Roll",        price:12, recipe:["Rice","Nori","Cucumber"] },
   { emoji:"🦀", name:"Crab Temaki",          price:28, recipe:["Rice","Nori","Crab"] },
   { emoji:"🦐", name:"Shrimp Roll",          price:17, recipe:["Rice","Nori","Shrimp"] },
   { emoji:"💣", name:"Wasabi Bomb",          price:18, recipe:["Rice","Wasabi","Soy Sauce"] },
+  { emoji:"🍣", name:"Salmon Temaki",        price:20, recipe:["Rice","Nori","Salmon"] },
 
   // Signature rolls (4 ingredients)
   { emoji:"🌶️",name:"Spicy Tuna Roll",      price:20, recipe:["Rice","Nori","Tuna","Chilli"] },
   { emoji:"🐉", name:"Dragon Roll",          price:22, recipe:["Rice","Nori","Shrimp","Avocado"] },
   { emoji:"🫐", name:"Ikura Roll",           price:35, recipe:["Rice","Nori","Salmon Roe","Avocado"] },
   { emoji:"🐙", name:"Octopus Bomb",         price:24, recipe:["Rice","Octopus","Soy Sauce","Wasabi"] },
+  { emoji:"🦀", name:"Crab & Salmon Roll",   price:38, recipe:["Rice","Nori","Crab","Salmon"] },
 
   // No-rice dishes
   { emoji:"🐟", name:"Tuna Tataki",          price:24, recipe:["Tuna","Soy Sauce","Wasabi"] },
   { emoji:"🦀", name:"Chilli Crab",          price:30, recipe:["Crab","Chilli","Soy Sauce"] },
-  { emoji:"🐙", name:"Octopus Salad",        price:20, recipe:["Octopus","Cucumber","Soy Sauce"] },
+  { emoji:"🐙", name:"Spicy Octopus",        price:22, recipe:["Octopus","Chilli","Soy Sauce"] },
   { emoji:"🍣", name:"Salmon Sashimi",       price:22, recipe:["Salmon","Wasabi","Soy Sauce"] },
   { emoji:"🦐", name:"Spicy Shrimp",         price:18, recipe:["Shrimp","Chilli","Soy Sauce"] },
 
   // Premium dishes
   { emoji:"🌈", name:"Rainbow Roll",         price:40, recipe:["Rice","Tuna","Salmon","Avocado"] },
   { emoji:"🦄", name:"Unicorn Roll",         price:42, recipe:["Rice","Nori","Avocado","Salmon Roe"] },
-  { emoji:"🦞", name:"Royal Lobster Roll",   price:70, recipe:["Rice","Nori","Lobster","Salmon Roe"] },
 ];
 
 // ── CUSTOMERS with special abilities ──────────────────────────────────────────
 const customerList = [
-  { img:"TheKing.png",         name:"The King",         ability:"kingsOrder",    abilityText:"Serve first after he arrives: +$25! Each skip costs -$5." },
-  { img:"CowboyCarl.png",      name:"Cowboy Carl",      ability:"sideBet",       abilityText:"When served, your NEXT correct order earns +[his dish price] extra!" },
-  { img:"WizardZorp.png",      name:"Wizard Zorp",      ability:"mystery",       abilityText:"One ingredient is hidden — guess it!" },
-  { img:"CaptainStrong.png",   name:"Captain Strong",   ability:"shield",        abilityText:"While he waits, no other customer loses patience!" },
-  { img:"MermaidMarina.png",   name:"Mermaid Marina",   ability:"tidalBounty",   abilityText:"Each ingredient you discard while she waits adds +$5 to her payout!" },
-  { img:"PandaPete.png",       name:"Panda Pete",       ability:"bambooStash",   abilityText:"When served, adds 2 Veg Farm wilds to your hand!" },
-  { img:"CountFangula.png",    name:"Count Fangula",    ability:"firstBite",     abilityText:"Served first this game? Earns DOUBLE!" },
-  { img:"PrincessSparkle.png", name:"Princess Sparkle", ability:"vipRush",       abilityText:"Tap her to start a 15s clock! Serve in time: +$20. Then -$1/sec." },
-  { img:"Robot3000.png",       name:"Robot 3000",       ability:"flawless",      abilityText:"No wrong orders all game? Earn +$25 bonus when you serve Robot!" },
-  { img:"FoxFred.png",         name:"Foxy",             ability:"luckyDraw",     abilityText:"Serve Foxy → draw 2 bonus ingredients!" },
-  { img:"AstronautAl.png",     name:"Astronaut Al",     ability:"wildCard",      abilityText:"One recipe slot is ❓ — any ingredient fits!" },
-  { img:"DragonDave.png",      name:"Dragon Dave",      ability:"fury",          abilityText:"Each skip costs him 2 patience — but earns you +$8 more!" },
-  { img:"SurferDude.png",      name:"Surfer Dude",      ability:"freshWave",     abilityText:"When served, your entire hand refreshes with new ingredients!" },
-  { img:"RockStarRex.png",     name:"Rockstar Rex",     ability:"encore",        abilityText:"After serving Rex, your NEXT correct order earns DOUBLE!" },
-  { img:"UrielUnicorn.png",    name:"Uni the Unicorn",  ability:"magicHand",     abilityText:"Serve Uni → one ingredient becomes a ⭐ Wild!" },
-  { img:"GradnmaGin.png",      name:"Grandma",          ability:"patientTipper", abilityText:"Never leaves! Tips +$5 per customer served before her." },
+  { img:"mini/004_The_King.png",          name:"The King",         ability:"kingsOrder",    abilityText:"Serve first after he arrives: +$25! Each skip costs -$5." },
+  { img:"mini/001_Cowboy_Carl.png",       name:"Cowboy Carl",      ability:"sideBet",       abilityText:"When served, your NEXT correct order earns +[his dish price] extra!" },
+  { img:"mini/005_Wizard_Zora.png",       name:"Wizard Zorp",      ability:"mystery",       abilityText:"One ingredient is hidden — guess it!" },
+  { img:"mini/006_Captain_Strong.png",    name:"Captain Strong",   ability:"shield",        abilityText:"While he waits, no other customer loses patience!" },
+  { img:"mini/007_Mermaid_Marina.png",    name:"Mermaid Marina",   ability:"tidalBounty",   abilityText:"Each ingredient you discard while she waits adds +$5 to her payout!" },
+  { img:"mini/008_Panda_Pillie.png",      name:"Panda Pete",       ability:"bambooStash",   abilityText:"When served, adds 2 Delivery Truck wilds to your hand!" },
+  { img:"mini/011_Count_Fangula.png",     name:"Count Fangula",    ability:"firstBite",     abilityText:"Served first this game? Earns DOUBLE!" },
+  { img:"mini/012_Princess_Sparkle.png",  name:"Princess Sparkle", ability:"vipRush",       abilityText:"Tap her to start a 15s clock! Serve in time: +$20. Then -$1/sec." },
+  { img:"mini/013_Robot_3000.png",        name:"Robot 3000",       ability:"flawless",      abilityText:"No wrong orders all game? Earn +$25 bonus when you serve Robot!" },
+  { img:"mini/009_Fox_Fred.png",          name:"Foxy",             ability:"luckyDraw",     abilityText:"Serve Foxy → draw 2 bonus ingredients!" },
+  { img:"mini/014_Astronaut_Al.png",      name:"Astronaut Al",     ability:"wildCard",      abilityText:"One recipe slot is ❓ — any ingredient fits!" },
+  { img:"mini/010_Dragon_Dave.png",       name:"Dragon Dave",      ability:"fury",          abilityText:"Each skip costs him 2 patience — but earns you +$8 more!" },
+  { img:"mini/002_Surfer_Dude.png",       name:"Surfer Dude",      ability:"freshWave",     abilityText:"When served, your entire hand refreshes with new ingredients!" },
+  { img:"mini/003_Rockstar_Rex.png",      name:"Rockstar Rex",     ability:"encore",        abilityText:"After serving Rex, your NEXT correct order earns DOUBLE!" },
+  { img:"mini/015_Uriel_the_Unicorn.png", name:"Uni the Unicorn",  ability:"magicHand",     abilityText:"Serve Uni → one ingredient becomes a Wildcard!" },
+  { img:"mini/016_Grandma_Gin.png",       name:"Grandma",          ability:"patientTipper", abilityText:"Never leaves! Tips +$5 per customer served before her." },
 ];
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
-const WILD    = { emoji:"⭐", name:"Wild", isWild:true };
-// Squid and Fugu were removed from the game
-const SEAFOOD = new Set(["Salmon","Tuna","Shrimp","Octopus","Crab","Lobster","Salmon Roe"]);
+const WILD_TRUCK = { img:"mini/013_Wildcard.png", name:"Wildcard Delivery Truck", weight:1, isDeliveryWild:true };
+const SEAFOOD = new Set(["Salmon","Tuna","Shrimp","Octopus","Crab","Salmon Roe"]);
 
 const pool = [];
 ingredients.forEach(ing => {
@@ -426,15 +613,14 @@ function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function drawIngredient() { return { ...pick(pool) }; }
 function ingImg(name) {
   const i = ingredients.find(x => x.name === name);
-  return i
-    ? `<img src="images/ingredients/${i.img}" alt="${name}" class="recipe-ing-img">`
-    : "🍽️";
+  if (!i) return "🍽️";
+  if (i.img) return `<img src="images/ingredients/${i.img}" alt="${name}" class="recipe-ing-img">`;
+  return i.emoji || "🍽️";
 }
 
 // Bipartite matching with wildcard support:
-//   null            = universal wild (Astronaut Al slot or Uni the Unicorn card)
-//   "SEAFOOD_WILD"  = Seafood Market card — matches any ingredient in SEAFOOD set
-//   "VEG_WILD"      = Vegetable Farm card — matches any non-seafood ingredient
+//   null             = universal wild (Astronaut Al slot or Uni the Unicorn card)
+//   "DELIVERY_WILD"  = Delivery Truck — matches any fish OR any vegetable ingredient
 function permMatch(chosen, required) {
   if (chosen.length === 0) return required.length === 0;
   if (chosen.length !== required.length) return false;
@@ -443,8 +629,7 @@ function permMatch(chosen, required) {
     const matches =
       c === null || r === null ||
       c === r ||
-      (c === "SEAFOOD_WILD" && SEAFOOD.has(r)) ||
-      (c === "VEG_WILD"     && !SEAFOOD.has(r));
+      c === "DELIVERY_WILD";
     if (matches) {
       if (permMatch(chosen.slice(1), required.filter((_, i) => i !== j))) return true;
     }
@@ -459,8 +644,6 @@ function startTimer() {
   gameActive = true;
   // Reset pause state in case New Game was pressed while paused
   paused     = false;
-  document.getElementById("customers").classList.remove("blacked-out");
-  document.getElementById("hand").classList.remove("blacked-out");
   const pauseBtn = document.getElementById("btn-pause");
   if (pauseBtn) pauseBtn.textContent = "⏸️ Pause";
   updateTimerDisplay();
@@ -501,9 +684,6 @@ function endGame() {
   paused     = false;
   timeLeft   = 0;
   updateTimerDisplay();
-  // Remove any lingering blackout so the final state is visible
-  document.getElementById("customers").classList.remove("blacked-out");
-  document.getElementById("hand").classList.remove("blacked-out");
   setStatus(`⏱️ Time's up! Final score: $${score} — press New Game to play again!`, "error");
 }
 
@@ -518,16 +698,12 @@ function togglePause() {
   const hand      = document.getElementById("hand");
 
   if (paused) {
-    // Stop the countdown and darken the cards so nothing can be memorised
     clearInterval(timerInterval);
-    customers.classList.add("blacked-out");
-    hand.classList.add("blacked-out");
+    renderPausedCards();
     btn.textContent = "▶️ Resume";
     setStatus("⏸️ Paused — press Resume to continue", "");
   } else {
-    // Restart the countdown and restore the cards
-    customers.classList.remove("blacked-out");
-    hand.classList.remove("blacked-out");
+    render();
     btn.textContent = "⏸️ Pause";
     setStatus("Pick a customer, then tap their ingredients!", "");
     timerInterval = setInterval(() => {
@@ -654,18 +830,38 @@ function renderHand() {
     const div = document.createElement("div");
     let cls = "ing-card";
     if (selectedIdxs.has(idx)) cls += " selected";
-    if (ing.isWild)        cls += " wild-card";
-    if (ing.isSeafoodWild) cls += " seafood-wild-card";
-    if (ing.isVegWild)     cls += " veg-wild-card";
+    if (ing.isDeliveryWild) cls += " delivery-wild-card";
     div.className = cls;
     div.onclick = () => toggleIng(idx);
-    // Image ingredients use <img>; WILD star card falls back to emoji
     const visual = ing.img
       ? `<img class="i-img" src="images/ingredients/${ing.img}" alt="${ing.name}">`
       : `<div class="i-emoji">${ing.emoji}</div>`;
     div.innerHTML = visual;
     el.appendChild(div);
   });
+  updateServeHint();
+}
+
+function updateServeHint() {
+  const el = document.getElementById("serve-hint");
+  if (!el) return;
+  if (selectedCustomer === null || !gameActive) { el.textContent = ""; el.className = "serve-hint"; return; }
+  const slot = activeCustomers[selectedCustomer];
+  const need = slot.dish.recipe.length;
+  const have = selectedIdxs.size;
+  if (have === 0) {
+    el.textContent = `Select ${need} ingredient${need > 1 ? "s" : ""} for ${slot.customer.name}`;
+    el.className = "serve-hint needs";
+  } else if (have < need) {
+    el.textContent = `${have}/${need} selected — need ${need - have} more`;
+    el.className = "serve-hint needs";
+  } else if (have === need) {
+    el.textContent = `✅ ${have}/${need} ready — hit Serve!`;
+    el.className = "serve-hint ready";
+  } else {
+    el.textContent = `⚠️ Too many selected (${have}/${need})`;
+    el.className = "serve-hint over";
+  }
 }
 
 function render() { renderCustomers(); renderHand(); }
@@ -682,6 +878,7 @@ function selectCustomer(idx) {
     }
   }
   renderCustomers();
+  updateServeHint();
 }
 
 function toggleIng(idx) {
@@ -704,16 +901,16 @@ function serve() {
     return;
   }
 
-  // Build match arrays: null = universal wild, strings signal category wilds
+  // Build match arrays: null = universal wild, "DELIVERY_WILD" = truck wildcard
   const required    = dish.recipe.map((r, i) => (slot.wildIndex === i) ? null : r);
   const chosenNames = chosen.map(c => {
-    if (c.isWild)        return null;           // Uni / Astronaut Al star card
-    if (c.isSeafoodWild) return "SEAFOOD_WILD"; // Seafood Market
-    if (c.isVegWild)     return "VEG_WILD";     // Vegetable Farm
+    if (c.isDeliveryWild) return "DELIVERY_WILD"; // Wildcard Delivery Truck
     return c.name;
   });
 
-  if (!permMatch(chosenNames, required)) {
+  const matchResult = permMatch(chosenNames, required);
+  console.log("[serve]", { chosen: chosenNames, required, match: matchResult });
+  if (!matchResult) {
     handleWrongOrder(slot);
     return;
   }
@@ -810,13 +1007,13 @@ function handleCorrectOrder() {
     msg += " 🦊 +2 bonus cards!";
   }
   if (ability === "magicHand") {
-    hand[Math.floor(Math.random() * hand.length)] = { ...WILD };
-    msg += " ⭐ One ingredient became a Wild!";
+    hand[Math.floor(Math.random() * hand.length)] = { ...WILD_TRUCK };
+    msg += " 🚛 One ingredient became a Wildcard!";
   }
   if (ability === "bambooStash") {
-    hand.push({ img:"farm.png", name:"Vegetable Farm", weight:2, isVegWild:true });
-    hand.push({ img:"farm.png", name:"Vegetable Farm", weight:2, isVegWild:true });
-    msg += " 🐼 +2 Veg Farm wilds!";
+    const truck = { img:"mini/013_Wildcard.png", name:"Wildcard Delivery Truck", weight:1, isDeliveryWild:true };
+    hand.push({ ...truck }, { ...truck });
+    msg += " 🐼 +2 Delivery Truck wilds!";
   }
   if (ability === "freshWave") {
     hand = Array.from({ length: 10 }, drawIngredient);
@@ -922,6 +1119,59 @@ function setStatus(msg, type) {
   el.textContent = msg;
   el.className = "status " + type;
 }
+
+// ── TCG CARD BACKS (shown when paused) ────────────────────────────────────────
+function renderPausedCards() {
+  const cardBack = `<div class="card-back"><img src="images/assets/CookCardsLogo.png" alt="Cook Cards"></div>`;
+  const handEl  = document.getElementById("hand");
+  const custsEl = document.getElementById("customers");
+  handEl.querySelectorAll(".ing-card").forEach(c => { c.innerHTML = cardBack; c.style.pointerEvents = "none"; });
+  custsEl.querySelectorAll(".customer-card").forEach(c => { c.innerHTML = cardBack; c.style.pointerEvents = "none"; });
+}
+
+// ── WELCOME SEQUENCE ──────────────────────────────────────────────────────────
+(function initWelcome() {
+  const overlay   = document.getElementById("welcome-overlay");
+  const logoPhase = document.getElementById("welcome-logo-phase");
+  const instrPhase= document.getElementById("welcome-instr-phase");
+  const startBtn  = document.getElementById("instr-start-btn");
+  const langBtn   = document.getElementById("btn-lang");
+  const enDiv     = document.getElementById("instr-en");
+  const esDiv     = document.getElementById("instr-es");
+  let lang = "en";
+
+  langBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    lang = (lang === "en") ? "es" : "en";
+    enDiv.style.display = (lang === "en") ? "" : "none";
+    esDiv.style.display = (lang === "es") ? "" : "none";
+    langBtn.textContent = (lang === "en") ? "🌐 Español" : "🌐 English";
+    startBtn.textContent = (lang === "en") ? "▶ Click or press Enter to Start!" : "▶ ¡Clic o presiona Enter para Empezar!";
+  });
+
+  function startGame() {
+    overlay.classList.add("fade-out");
+    setTimeout(() => overlay.remove(), 650);
+  }
+
+  function showInstructions() {
+    logoPhase.classList.add("fade-out");
+    setTimeout(() => {
+      logoPhase.style.display = "none";
+      instrPhase.style.display = "flex";
+    }, 500);
+  }
+
+  setTimeout(showInstructions, 2200);
+
+  startBtn.addEventListener("click", startGame);
+  overlay.addEventListener("click", (e) => {
+    if (instrPhase.style.display === "flex" && e.target !== langBtn) startGame();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && instrPhase.style.display === "flex") startGame();
+  });
+})();
 
 newGame();
 </script>
