@@ -298,7 +298,7 @@
   .farm-section-title { font-size:0.92em; font-weight:900; color:white; text-shadow:0 2px 6px rgba(0,0,0,.5); }
 
   /* animal garden */
-  .farm-garden-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .farm-garden-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
   .farm-garden-plot {
     aspect-ratio:1; border-radius:12px; display:flex; flex-direction:column;
     align-items:center; justify-content:center; gap:3px; padding:6px; cursor:default;
@@ -350,6 +350,8 @@
   }
   .btn-feed:active { transform:translateY(3px); box-shadow:none; }
   .btn-feed-nofeed { background:#e67e22; color:white; border:none; border-radius:999px; padding:5px 10px; font-size:0.7em; font-weight:800; cursor:default; font-family:inherit; opacity:0.8; }
+  .btn-horse-feed  { background:#8b6f47 !important; box-shadow:0 3px 0 #5a4230 !important; }
+  .fc-horse-ready  { background:rgba(245,235,215,0.96) !important; border-color:#a07840 !important; }
   .chicken-timer { font-size:0.76em; font-weight:800; color:#9a7050; }
 
   .farm-buy-box { display:flex; flex-direction:column; align-items:center; gap:8px; }
@@ -572,6 +574,8 @@
     <div class="farm-right">
       <div class="farm-section-title">🐔 Chickens</div>
       <div class="farm-chicken-grid" id="farm-chicken-grid"></div>
+      <div class="farm-section-title" style="margin-top:8px">🐴 Horses</div>
+      <div class="farm-chicken-grid" id="farm-horse-grid"></div>
       <div class="farm-buy-box" id="farm-buy-area"></div>
     </div>
   </div>
@@ -1047,31 +1051,49 @@ function goToShop() {
 }
 
 // ── FARM ──────────────────────────────────────────────────────────────────────
-const CHICKEN_COOLDOWN = 15000; // ms between hungers
+const CHICKEN_COOLDOWN = 15000;
+const HORSE_COOLDOWN   = 20000;
 const FARM_FEED_MAX    = 50;
 
+// feedType: "chicken" feeds chickens, "horse" feeds horses, "both" feeds both
 const FARM_CROPS = [
-  { emoji:"🌾", name:"Wheat",     cost:2,  rate:1/20,  label:"1 feed / 20s" },
-  { emoji:"🌽", name:"Corn",      cost:5,  rate:1/12,  label:"1 feed / 12s" },
-  { emoji:"🥕", name:"Carrot",    cost:10, rate:1/8,   label:"1 feed / 8s"  },
-  { emoji:"🫘", name:"Soybeans",  cost:20, rate:1/5,   label:"1 feed / 5s"  },
-  { emoji:"🌻", name:"Sunflower", cost:50, rate:1/3,   label:"1 feed / 3s"  },
+  { emoji:"🌾", name:"Wheat",     cost:2,  rate:1/20, feedType:"chicken", label:"1 🐔 feed / 20s" },
+  { emoji:"🌽", name:"Corn",      cost:6,  rate:1/12, feedType:"chicken", label:"1 🐔 feed / 12s" },
+  { emoji:"🥕", name:"Carrot",    cost:8,  rate:1/18, feedType:"horse",   label:"1 🐴 feed / 18s" },
+  { emoji:"🫘", name:"Soybeans",  cost:12, rate:1/10, feedType:"horse",   label:"1 🐴 feed / 10s" },
+  { emoji:"🌻", name:"Sunflower", cost:35, rate:1/8,  feedType:"both",    label:"1 of each / 8s"  },
 ];
 
 let farmChickens = (() => {
   const v = parseInt(localStorage.getItem("cookcards_farm_chickens")||"1", 10);
   return isNaN(v) ? 1 : Math.max(1, v);
 })();
+let farmHorses = (() => {
+  const v = parseInt(localStorage.getItem("cookcards_farm_horses")||"0", 10);
+  return isNaN(v) ? 0 : Math.max(0, v);
+})();
 let farmFedTimes = (() => {
   try { return JSON.parse(localStorage.getItem("cookcards_farm_fed")||"[]"); }
   catch { return []; }
 })();
-let farmGardenPlots = (() => {
-  try { return JSON.parse(localStorage.getItem("cookcards_farm_garden")||"null") || [null,null,null]; }
-  catch { return [null,null,null]; }
+let farmHorseFedTimes = (() => {
+  try { return JSON.parse(localStorage.getItem("cookcards_farm_horse_fed")||"[]"); }
+  catch { return []; }
 })();
-let farmFeed = (() => {
-  const v = parseFloat(localStorage.getItem("cookcards_farm_feed")||"0");
+let farmGardenPlots = (() => {
+  try {
+    const saved = JSON.parse(localStorage.getItem("cookcards_farm_garden")||"null") || [];
+    while (saved.length < 5) saved.push(null);
+    return saved;
+  } catch { return [null,null,null,null,null]; }
+})();
+let farmChickenFeed = (() => {
+  const v = parseFloat(localStorage.getItem("cookcards_farm_chicken_feed")||
+    localStorage.getItem("cookcards_farm_feed")||"0");
+  return isNaN(v) ? 0 : v;
+})();
+let farmHorseFeed = (() => {
+  const v = parseFloat(localStorage.getItem("cookcards_farm_horse_feed")||"0");
   return isNaN(v) ? 0 : v;
 })();
 let farmLastTick = (() => {
@@ -1081,38 +1103,51 @@ let farmLastTick = (() => {
 let farmTimerInterval = null;
 
 function saveFarm() {
-  localStorage.setItem("cookcards_farm_chickens", farmChickens);
-  localStorage.setItem("cookcards_farm_fed",      JSON.stringify(farmFedTimes));
-  localStorage.setItem("cookcards_farm_garden",   JSON.stringify(farmGardenPlots));
-  localStorage.setItem("cookcards_farm_feed",     farmFeed.toFixed(4));
-  localStorage.setItem("cookcards_farm_tick",     farmLastTick);
+  localStorage.setItem("cookcards_farm_chickens",     farmChickens);
+  localStorage.setItem("cookcards_farm_horses",       farmHorses);
+  localStorage.setItem("cookcards_farm_fed",          JSON.stringify(farmFedTimes));
+  localStorage.setItem("cookcards_farm_horse_fed",    JSON.stringify(farmHorseFedTimes));
+  localStorage.setItem("cookcards_farm_garden",       JSON.stringify(farmGardenPlots));
+  localStorage.setItem("cookcards_farm_chicken_feed", farmChickenFeed.toFixed(4));
+  localStorage.setItem("cookcards_farm_horse_feed",   farmHorseFeed.toFixed(4));
+  localStorage.setItem("cookcards_farm_tick",         farmLastTick);
 }
 
-// Accumulate feed from planted crops since last tick (works offline too)
 function tickFarmFeed() {
   const now  = Date.now();
   const secs = (now - farmLastTick) / 1000;
   farmLastTick = now;
-  let generated = 0;
   farmGardenPlots.forEach(plot => {
     if (!plot) return;
     const crop = FARM_CROPS.find(c=>c.name===plot);
-    if (crop) generated += crop.rate * secs;
+    if (!crop) return;
+    if (crop.feedType === "chicken" || crop.feedType === "both")
+      farmChickenFeed = Math.min(FARM_FEED_MAX, farmChickenFeed + crop.rate * secs);
+    if (crop.feedType === "horse" || crop.feedType === "both")
+      farmHorseFeed = Math.min(FARM_FEED_MAX, farmHorseFeed + crop.rate * secs);
   });
-  farmFeed = Math.min(FARM_FEED_MAX, farmFeed + generated);
 }
 
-function canFeedChicken(idx) {
-  return Date.now() - (farmFedTimes[idx]||0) >= CHICKEN_COOLDOWN;
-}
+function canFeedChicken(idx) { return Date.now() - (farmFedTimes[idx]||0) >= CHICKEN_COOLDOWN; }
+function canFeedHorse(idx)   { return Date.now() - (farmHorseFedTimes[idx]||0) >= HORSE_COOLDOWN; }
 
 function feedChicken(idx) {
-  if (!canFeedChicken(idx) || farmFeed < 1) return;
+  if (!canFeedChicken(idx) || farmChickenFeed < 1) return;
   farmFedTimes[idx] = Date.now();
-  farmFeed = Math.max(0, farmFeed - 1);
+  farmChickenFeed = Math.max(0, farmChickenFeed - 1);
   addToWallet(1);
   saveFarm();
   renderChickens();
+  renderFeedDisplay();
+}
+
+function feedHorse(idx) {
+  if (!canFeedHorse(idx) || farmHorseFeed < 1) return;
+  farmHorseFedTimes[idx] = Date.now();
+  farmHorseFeed = Math.max(0, farmHorseFeed - 1);
+  addToWallet(3);
+  saveFarm();
+  renderHorses();
   renderFeedDisplay();
 }
 
@@ -1122,6 +1157,15 @@ function buyChicken() {
   farmChickens++;
   saveFarm();
   renderChickens();
+  renderFarmBuyArea();
+}
+
+function buyHorse() {
+  const cost = (farmHorses + 1) * 10;
+  if (!spendFromWallet(cost)) return;
+  farmHorses++;
+  saveFarm();
+  renderHorses();
   renderFarmBuyArea();
 }
 
@@ -1138,13 +1182,14 @@ function plantCrop(cropName) {
 }
 
 function goToFarm() {
-  tickFarmFeed(); // catch up offline feed
+  tickFarmFeed();
   showScreen("screen-farm");
   refreshWalletDisplays();
   renderFarmGarden();
   renderFeedDisplay();
   renderSeedShop();
   renderChickens();
+  renderHorses();
   renderFarmBuyArea();
   if (farmTimerInterval) clearInterval(farmTimerInterval);
   farmTimerInterval = setInterval(() => {
@@ -1153,6 +1198,7 @@ function goToFarm() {
     }
     tickFarmFeed();
     renderChickens();
+    renderHorses();
     renderFeedDisplay();
   }, 500);
 }
@@ -1169,7 +1215,7 @@ function renderFarmGarden() {
   const grid = document.getElementById("farm-garden-grid");
   if (!grid) return;
   grid.innerHTML = "";
-  farmGardenPlots.forEach((plot, idx) => {
+  farmGardenPlots.forEach((plot) => {
     const div = document.createElement("div");
     if (plot) {
       const crop = FARM_CROPS.find(c=>c.name===plot);
@@ -1189,7 +1235,7 @@ function renderFarmGarden() {
 
 function renderFeedDisplay() {
   const el = document.getElementById("farm-feed-display");
-  if (el) el.textContent = `🌾 Feed: ${Math.floor(farmFeed)} / ${FARM_FEED_MAX}`;
+  if (el) el.innerHTML = `🐔 ${Math.floor(farmChickenFeed)}/${FARM_FEED_MAX} &nbsp;·&nbsp; 🐴 ${Math.floor(farmHorseFeed)}/${FARM_FEED_MAX}`;
 }
 
 function renderSeedShop() {
@@ -1199,12 +1245,13 @@ function renderSeedShop() {
   const hasEmpty = farmGardenPlots.includes(null);
   FARM_CROPS.forEach(crop => {
     const canAfford = wallet >= crop.cost;
+    const typeTag = crop.feedType === "both" ? "🐔🐴" : crop.feedType === "chicken" ? "🐔" : "🐴";
     const row = document.createElement("div");
     row.className = "farm-seed-row";
     row.innerHTML = `
       <div class="farm-seed-emoji">${crop.emoji}</div>
       <div class="farm-seed-info">
-        <div class="farm-seed-name">${crop.name} ($${crop.cost})</div>
+        <div class="farm-seed-name">${crop.name} ${typeTag} ($${crop.cost})</div>
         <div class="farm-seed-rate">${crop.label}</div>
       </div>
       <button class="btn-plant-seed" onclick="plantCrop('${crop.name}')"
@@ -1222,7 +1269,7 @@ function renderChickens() {
   grid.innerHTML = "";
   for (let i = 0; i < farmChickens; i++) {
     const hungry  = canFeedChicken(i);
-    const hasFeed = farmFeed >= 1;
+    const hasFeed = farmChickenFeed >= 1;
     const remaining = hungry ? 0 : Math.ceil((CHICKEN_COOLDOWN - (Date.now() - (farmFedTimes[i]||0))) / 1000);
     const div = document.createElement("div");
     div.className = "farm-chicken " + (hungry && hasFeed ? "fc-ready" : hungry ? "fc-hungry" : "fc-waiting");
@@ -1232,7 +1279,35 @@ function renderChickens() {
       ${hungry && hasFeed
         ? `<button class="btn-feed" onclick="feedChicken(${i})">🌾 Feed! (+$1)</button>`
         : hungry
-          ? `<button class="btn-feed-nofeed">No feed!</button>`
+          ? `<button class="btn-feed-nofeed">No wheat!</button>`
+          : `<div class="chicken-timer">Hungry in ${remaining}s</div>`
+      }
+    `;
+    grid.appendChild(div);
+  }
+}
+
+function renderHorses() {
+  const grid = document.getElementById("farm-horse-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  if (farmHorses === 0) {
+    grid.innerHTML = `<div style="color:rgba(255,255,255,0.45);font-size:0.78em;font-weight:700;text-align:center;padding:10px">No horses yet</div>`;
+    return;
+  }
+  for (let i = 0; i < farmHorses; i++) {
+    const hungry  = canFeedHorse(i);
+    const hasFeed = farmHorseFeed >= 1;
+    const remaining = hungry ? 0 : Math.ceil((HORSE_COOLDOWN - (Date.now() - (farmHorseFedTimes[i]||0))) / 1000);
+    const div = document.createElement("div");
+    div.className = "farm-chicken " + (hungry && hasFeed ? "fc-ready fc-horse-ready" : hungry ? "fc-hungry" : "fc-waiting");
+    div.innerHTML = `
+      <div class="chicken-emoji">${hungry && hasFeed ? "🐴" : hungry ? "😩" : "😴"}</div>
+      <div class="chicken-label">Horse ${i + 1}</div>
+      ${hungry && hasFeed
+        ? `<button class="btn-feed btn-horse-feed" onclick="feedHorse(${i})">🫘 Feed! (+$3)</button>`
+        : hungry
+          ? `<button class="btn-feed-nofeed">No soybeans!</button>`
           : `<div class="chicken-timer">Hungry in ${remaining}s</div>`
       }
     `;
@@ -1243,13 +1318,16 @@ function renderChickens() {
 function renderFarmBuyArea() {
   const area = document.getElementById("farm-buy-area");
   if (!area) return;
-  const cost = farmChickens * 5;
-  const canAfford = wallet >= cost;
+  const chickCost = farmChickens * 5;
+  const horseCost = (farmHorses + 1) * 10;
   area.innerHTML = `
-    <button class="btn-buy-chicken" onclick="buyChicken()" ${canAfford?"":"disabled"}>
-      🐣 Buy Chicken ($${cost})
+    <button class="btn-buy-chicken" onclick="buyChicken()" ${wallet >= chickCost ? "" : "disabled"}>
+      🐣 Buy Chicken ($${chickCost})
     </button>
-    <div class="farm-buy-note">${canAfford ? `You have ${farmChickens} chicken${farmChickens>1?"s":""}` : `Need $${cost} (have $${wallet})`}</div>
+    <button class="btn-buy-chicken" style="background:#8b6f47;box-shadow:0 5px 0 #5a4230" onclick="buyHorse()" ${wallet >= horseCost ? "" : "disabled"}>
+      🐴 Buy Horse ($${horseCost})
+    </button>
+    <div class="farm-buy-note">${farmChickens} chicken${farmChickens!==1?"s":""} · ${farmHorses} horse${farmHorses!==1?"s":""}</div>
   `;
 }
 
