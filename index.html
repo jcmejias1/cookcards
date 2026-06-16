@@ -354,6 +354,129 @@
     width: 72%; opacity: 0.92;
     filter: drop-shadow(0 2px 8px rgba(0,0,0,0.6));
   }
+
+  /* ── LEVELS BUTTON (sidebar) ─────────────────────────────────────────────── */
+  .btn-levels {
+    flex: 1;
+    background: #7b2f9e; color: white; border: none;
+    border-radius: 999px; padding: 7px 10px; font-size: 0.82em;
+    font-weight: 800; cursor: pointer; font-family: inherit;
+    box-shadow: 0 4px 0 #4a1060; letter-spacing: 0.02em;
+  }
+  .btn-levels:active { transform: translateY(4px); box-shadow: none; }
+
+  /* ── LEVEL GOAL BAR (sidebar) ────────────────────────────────────────────── */
+  .level-goal-bar {
+    background: rgba(253,243,227,0.1); border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px; padding: 6px 10px;
+  }
+  .goal-label { font-size: 0.68em; font-weight: 800; color: rgba(255,255,255,0.9); margin-bottom: 4px; }
+  .goal-track { background: rgba(255,255,255,0.12); border-radius: 999px; height: 8px; overflow: hidden; }
+  .goal-fill  { height: 100%; border-radius: 999px; transition: width 0.3s; }
+  .goal-fill-progress { background: linear-gradient(90deg, #e67e22, #f39c12); }
+  .goal-fill-done     { background: linear-gradient(90deg, #27ae60, #4ade80); }
+  .goal-cleared { font-size: 0.66em; font-weight: 900; color: #4ade80; text-align: center; margin-top: 3px; }
+
+  /* ── LEVEL SELECT MODAL ──────────────────────────────────────────────────── */
+  .level-modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,0.82); align-items: flex-start; justify-content: center;
+    padding: 16px; overflow-y: auto;
+  }
+  .level-modal-overlay.active { display: flex; }
+  .level-modal {
+    background: linear-gradient(160deg, #12122a, #1a1a4e);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 24px; padding: 28px 24px;
+    max-width: 820px; width: 100%; margin: auto;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+  }
+  .level-modal-title {
+    text-align: center; font-size: 1.7em; font-weight: 900; color: white;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5); margin-bottom: 8px;
+  }
+  .level-modal-sub {
+    text-align: center; font-size: 0.78em; font-weight: 700;
+    color: rgba(255,255,255,0.5); margin-bottom: 18px;
+  }
+  .btn-freeplay {
+    display: block; width: 100%; margin-bottom: 16px;
+    background: rgba(212,96,26,0.22); color: white;
+    border: 2px solid #d4601a; border-radius: 14px;
+    padding: 12px 24px; font-size: 0.95em; font-weight: 900;
+    cursor: pointer; font-family: inherit; text-align: left;
+    transition: background 0.15s;
+  }
+  .btn-freeplay:hover { background: rgba(212,96,26,0.4); }
+  .btn-freeplay span { float: right; font-size: 0.8em; opacity: 0.7; font-weight: 700; }
+  .level-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+    margin-bottom: 22px;
+  }
+  .level-card {
+    border-radius: 14px; padding: 12px 8px; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .lc-cleared   { background: rgba(39,174,96,0.18);  border: 2px solid #27ae60; cursor: pointer; }
+  .lc-available { background: rgba(255,255,255,0.07); border: 2px solid rgba(255,255,255,0.22); cursor: pointer; }
+  .lc-locked    { background: rgba(0,0,0,0.22); border: 2px dashed rgba(255,255,255,0.1); opacity: 0.55; }
+  .lc-cleared:hover, .lc-available:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .lc-num    { font-size: 1.6em; line-height: 1; }
+  .lc-title  { font-size: 0.68em; font-weight: 900; color: white; }
+  .lc-goal   { font-size: 0.72em; font-weight: 900; color: #f39c12; }
+  .lc-meta   { font-size: 0.58em; color: rgba(255,255,255,0.55); font-weight: 700; }
+  .btn-lv-play {
+    background: #d4601a; color: white; border: none; border-radius: 999px;
+    padding: 4px 12px; font-size: 0.68em; font-weight: 900;
+    cursor: pointer; font-family: inherit; box-shadow: 0 2px 0 #9a3f0a; margin-top: 2px;
+  }
+  .btn-lv-play:hover { background: #b84e12; }
+  .btn-lv-replay { background: #27ae60; box-shadow: 0 2px 0 #1a7a42; }
+  .btn-lv-replay:hover { background: #1a9e50; }
+  .lc-hint { font-size: 0.56em; color: rgba(255,255,255,0.35); font-weight: 700; margin-top: 1px; }
+
+  /* ── ACHIEVEMENTS ────────────────────────────────────────────────────────── */
+  .ach-section-title {
+    font-size: 0.82em; font-weight: 900; color: rgba(255,255,255,0.6);
+    text-align: center; letter-spacing: 0.06em; text-transform: uppercase;
+    border-top: 1px solid rgba(255,255,255,0.1); padding-top: 18px; margin-bottom: 12px;
+  }
+  .ach-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 18px; }
+  .ach-card {
+    border-radius: 12px; padding: 10px 8px; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .ach-earned { background: rgba(243,156,18,0.18); border: 1px solid #f39c12; }
+  .ach-locked { background: rgba(0,0,0,0.18); border: 1px dashed rgba(255,255,255,0.1); filter: grayscale(0.9); opacity: 0.55; }
+  .ach-icon { font-size: 1.5em; }
+  .ach-name { font-size: 0.65em; font-weight: 900; color: white; }
+  .ach-desc { font-size: 0.55em; color: rgba(255,255,255,0.6); font-weight: 700; }
+  .btn-modal-close {
+    display: block; margin: 0 auto;
+    background: rgba(255,255,255,0.1); color: white;
+    border: 2px solid rgba(255,255,255,0.2); border-radius: 999px;
+    padding: 8px 28px; font-size: 0.88em; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+  }
+  .btn-modal-close:hover { background: rgba(255,255,255,0.2); }
+
+  /* ── ACHIEVEMENT TOAST ───────────────────────────────────────────────────── */
+  .achievement-toast {
+    position: fixed; bottom: -130px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, #1a0a30, #3a1060);
+    border: 2px solid #f39c12; border-radius: 16px;
+    padding: 12px 20px; display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.55); z-index: 2000;
+    transition: bottom 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    min-width: 300px; pointer-events: none;
+  }
+  .achievement-toast.active { bottom: 28px; }
+  .toast-icon  { font-size: 2.1em; flex-shrink: 0; }
+  .toast-body  { flex: 1; min-width: 0; }
+  .toast-label { font-size: 0.58em; font-weight: 900; color: #f39c12; letter-spacing: 0.07em; text-transform: uppercase; }
+  .toast-name  { font-size: 0.95em; font-weight: 900; color: white; }
+  .toast-desc  { font-size: 0.63em; color: rgba(255,255,255,0.7); font-weight: 700; }
 </style>
 </head>
 <body>
@@ -477,6 +600,19 @@
   </div>
 </div>
 
+<!-- Level Select Modal -->
+<div class="level-modal-overlay" id="level-modal-overlay">
+  <div class="level-modal">
+    <div class="level-modal-title">🏆 Kitchen Levels</div>
+    <div class="level-modal-sub">Clear each level to unlock the next. Beat the money goal before time runs out!</div>
+    <button class="btn-freeplay" onclick="startFreePlay()">🍳 Free Play (no goal, unlimited) <span>Play relaxed</span></button>
+    <div class="level-grid" id="level-grid"></div>
+    <div class="ach-section-title">Achievements</div>
+    <div class="ach-grid" id="ach-grid"></div>
+    <button class="btn-modal-close" onclick="closeLevelSelect()">✕ Close</button>
+  </div>
+</div>
+
 <!-- Two-column layout: ingredient grid on the left, controls + customers on the right -->
 <div class="game-layout">
 
@@ -501,7 +637,9 @@
       <div class="sidebar-row">
         <button class="btn-new"   onclick="newGame()">🔄 New Game</button>
         <button class="btn-pause" id="btn-pause" onclick="togglePause()">⏸️ Pause</button>
+        <button class="btn-levels" onclick="openLevelSelect()">🏆 Levels</button>
       </div>
+      <div id="level-goal-bar" class="level-goal-bar" style="display:none"></div>
     </aside>
     <div class="customers" id="customers"></div>
   </div>
@@ -640,7 +778,8 @@ function permMatch(chosen, required) {
 // ── TIMER ─────────────────────────────────────────────────────────────────────
 function startTimer() {
   clearInterval(timerInterval);
-  timeLeft   = TIME_START;
+  const lv   = currentLevel ? LEVELS.find(l => l.level === currentLevel) : null;
+  timeLeft   = lv ? lv.time : TIME_START;
   gameActive = true;
   // Reset pause state in case New Game was pressed while paused
   paused     = false;
@@ -684,7 +823,16 @@ function endGame() {
   paused     = false;
   timeLeft   = 0;
   updateTimerDisplay();
-  setStatus(`⏱️ Time's up! Final score: $${score} — press New Game to play again!`, "error");
+  endLevelCheck();
+  const cleared = currentLevel && clearedLevels.includes(currentLevel);
+  const lv = currentLevel ? LEVELS.find(l => l.level === currentLevel) : null;
+  if (lv && cleared) {
+    setStatus(`✅ Level ${lv.level} cleared! $${score} / $${lv.goal} — press New Game or pick a level!`, "");
+  } else if (lv && !cleared) {
+    setStatus(`❌ Level ${lv.level} failed — needed $${lv.goal}, got $${score}. Try again!`, "error");
+  } else {
+    setStatus(`⏱️ Time's up! Final score: $${score} — press New Game to play again!`, "error");
+  }
 }
 
 // ── PAUSE / RESUME ────────────────────────────────────────────────────────────
@@ -721,7 +869,8 @@ function dealCustomer(usedDishNames = []) {
   if (!available.length) available = [...dishes];
 
   const dish = pick(available);
-  const slot = { customer: cust, dish, patience: 5 };
+  const lvPat = currentLevel ? (LEVELS.find(l => l.level === currentLevel) || {}).patience : 5;
+  const slot = { customer: cust, dish, patience: lvPat !== undefined ? lvPat : 5 };
 
   if (cust.ability === "mystery") {
     const hideable = dish.recipe.filter(r => r !== "Rice" && r !== "Nori");
@@ -756,7 +905,9 @@ function newGame() {
   encoreActive  = false;
   selectedCustomer = null;
   selectedIdxs = new Set();
+  levelGoalReachedTimeLeft = -1;
   document.getElementById("score").textContent = "0";
+  renderLevelGoalBar();
 
   activeCustomers = [];
   const usedDishes = [];
@@ -993,6 +1144,12 @@ function handleCorrectOrder() {
   score += earned;
   serveCount++;
   document.getElementById("score").textContent = score;
+  renderLevelGoalBar();
+  if (score >= 2000 && !earnedAchs.includes("highroll")) {
+    earnedAchs.push("highroll");
+    saveLevelData();
+    queueToasts(["highroll"]);
+  }
 
   let msg = `🎉 ${customer.name} loved it! +$${earned}`;
   if (bonusMsgs.length) msg += ` (${bonusMsgs.join(", ")})`;
@@ -1173,7 +1330,220 @@ function renderPausedCards() {
   });
 })();
 
+// ── LEVELS & ACHIEVEMENTS ────────────────────────────────────────────────────
+const LEVELS = [
+  { level:1,  title:"Apprentice",     goal:80,   time:150, patience:5 },
+  { level:2,  title:"Kitchen Helper", goal:160,  time:145, patience:5 },
+  { level:3,  title:"Line Cook",      goal:280,  time:140, patience:5 },
+  { level:4,  title:"Prep Chef",      goal:440,  time:130, patience:4 },
+  { level:5,  title:"Sous Chef",      goal:640,  time:120, patience:4 },
+  { level:6,  title:"Chef de Partie", goal:880,  time:110, patience:4 },
+  { level:7,  title:"Senior Chef",    goal:1160, time:100, patience:3 },
+  { level:8,  title:"Head Chef",      goal:1500, time:90,  patience:3 },
+  { level:9,  title:"Executive Chef", goal:1900, time:80,  patience:3 },
+  { level:10, title:"Master Chef",    goal:2500, time:70,  patience:2 },
+];
+
+const ACHIEVEMENTS = [
+  { id:"lv1",      icon:"🍣",  name:"First Order",   desc:"Clear Level 1 — welcome to the kitchen!" },
+  { id:"lv3",      icon:"🌶️", name:"Getting Spicy", desc:"Clear Level 3" },
+  { id:"lv5",      icon:"👨‍🍳", name:"Halfway There", desc:"Clear Level 5" },
+  { id:"lv7",      icon:"⭐",  name:"Senior Chef",   desc:"Clear Level 7" },
+  { id:"lv10",     icon:"🏆",  name:"Master Chef",   desc:"Clear Level 10 — you're a legend!" },
+  { id:"allclear", icon:"👑",  name:"Full Menu",     desc:"Clear every single level" },
+  { id:"flawless", icon:"💎",  name:"Flawless",      desc:"Clear a level without any wrong orders" },
+  { id:"speed",    icon:"⚡",  name:"Speed Chef",    desc:"Clear any level with 60+ seconds remaining" },
+  { id:"highroll", icon:"💰",  name:"Big Spender",   desc:"Score $2000+ in a single run" },
+];
+
+// Level state
+let currentLevel     = null;  // null = free play, number = active level
+let clearedLevels    = JSON.parse(localStorage.getItem("cookcards_cleared") || "[]");
+let earnedAchs       = JSON.parse(localStorage.getItem("cookcards_achs")    || "[]");
+let levelGoalReachedTimeLeft = -1;  // timeLeft snapshot when goal was first crossed
+let levelModalWasAutopaused  = false;
+
+// Toast queue
+let toastQueue = [];
+let toastDraining = false;
+
+function saveLevelData() {
+  localStorage.setItem("cookcards_cleared", JSON.stringify(clearedLevels));
+  localStorage.setItem("cookcards_achs",    JSON.stringify(earnedAchs));
+}
+
+// ── LEVEL SELECT MODAL ───────────────────────────────────────────────────────
+function openLevelSelect() {
+  // Auto-pause the game if running
+  levelModalWasAutopaused = false;
+  if (!paused && !gameOver) {
+    togglePause();
+    levelModalWasAutopaused = true;
+  }
+  renderLevelModal();
+  document.getElementById("level-modal-overlay").classList.add("active");
+}
+
+function closeLevelSelect() {
+  document.getElementById("level-modal-overlay").classList.remove("active");
+  if (levelModalWasAutopaused && paused && !gameOver) {
+    togglePause();
+  }
+  levelModalWasAutopaused = false;
+}
+
+function isLevelUnlocked(n) {
+  if (n === 1) return true;
+  return clearedLevels.includes(n - 1);
+}
+
+function renderLevelModal() {
+  // Level grid
+  const grid = document.getElementById("level-grid");
+  grid.innerHTML = LEVELS.map(lv => {
+    const cleared   = clearedLevels.includes(lv.level);
+    const unlocked  = isLevelUnlocked(lv.level);
+    const cls       = cleared ? "lc-cleared" : unlocked ? "lc-available" : "lc-locked";
+    const numEmoji  = cleared ? "✅" : unlocked ? lv.level : "🔒";
+    const btn       = cleared
+      ? `<button class="btn-lv-play btn-lv-replay" onclick="startLevel(${lv.level})">▶ Replay</button>`
+      : unlocked
+      ? `<button class="btn-lv-play" onclick="startLevel(${lv.level})">▶ Play</button>`
+      : `<span class="lc-hint">🔒 Clear ${lv.level - 1} first</span>`;
+    return `
+      <div class="level-card ${cls}">
+        <div class="lc-num">${numEmoji}</div>
+        <div class="lc-title">${lv.title}</div>
+        <div class="lc-goal">$${lv.goal}</div>
+        <div class="lc-meta">⏱️ ${lv.time}s &nbsp; 😤 ${lv.patience}p</div>
+        ${btn}
+      </div>`;
+  }).join("");
+
+  // Achievements grid
+  const achGrid = document.getElementById("ach-grid");
+  achGrid.innerHTML = ACHIEVEMENTS.map(a => {
+    const earned = earnedAchs.includes(a.id);
+    return `
+      <div class="ach-card ${earned ? "ach-earned" : "ach-locked"}">
+        <div class="ach-icon">${a.icon}</div>
+        <div class="ach-name">${earned ? a.name : "???"}</div>
+        <div class="ach-desc">${earned ? a.desc : "Keep playing to unlock"}</div>
+      </div>`;
+  }).join("");
+}
+
+function startLevel(n) {
+  currentLevel = n;
+  levelGoalReachedTimeLeft = -1;
+  document.getElementById("level-modal-overlay").classList.remove("active");
+  levelModalWasAutopaused = false;
+  newGame();
+}
+
+function startFreePlay() {
+  currentLevel = null;
+  levelGoalReachedTimeLeft = -1;
+  document.getElementById("level-modal-overlay").classList.remove("active");
+  levelModalWasAutopaused = false;
+  newGame();
+}
+
+// ── GOAL BAR ─────────────────────────────────────────────────────────────────
+function renderLevelGoalBar() {
+  const bar = document.getElementById("level-goal-bar");
+  if (!currentLevel) { bar.style.display = "none"; return; }
+  const lv = LEVELS.find(l => l.level === currentLevel);
+  if (!lv) { bar.style.display = "none"; return; }
+
+  const pct     = Math.min(100, Math.round((score / lv.goal) * 100));
+  const cleared = score >= lv.goal;
+
+  // Snapshot timeLeft when goal is first crossed (for speed achievement)
+  if (cleared && levelGoalReachedTimeLeft < 0) {
+    levelGoalReachedTimeLeft = timeLeft;
+  }
+
+  bar.style.display = "block";
+  bar.innerHTML = `
+    <div class="goal-label">Level ${lv.level}: ${lv.title} &nbsp;—&nbsp; Goal $${lv.goal}</div>
+    <div class="goal-track">
+      <div class="goal-fill ${cleared ? "goal-fill-done" : "goal-fill-progress"}" style="width:${pct}%"></div>
+    </div>
+    ${cleared ? '<div class="goal-cleared">✅ Goal cleared! Keep scoring or wait for time.</div>' : ""}`;
+}
+
+// ── END-OF-LEVEL CHECK ────────────────────────────────────────────────────────
+function endLevelCheck() {
+  if (!currentLevel) return;
+  const lv = LEVELS.find(l => l.level === currentLevel);
+  if (!lv || score < lv.goal) return;
+
+  // Mark level cleared
+  const wasCleared = clearedLevels.includes(currentLevel);
+  if (!wasCleared) clearedLevels.push(currentLevel);
+  saveLevelData();
+
+  // Determine achievements to award
+  const toUnlock = [];
+
+  const achByLevel = { 1:"lv1", 3:"lv3", 5:"lv5", 7:"lv7", 10:"lv10" };
+  if (achByLevel[currentLevel] && !earnedAchs.includes(achByLevel[currentLevel])) {
+    toUnlock.push(achByLevel[currentLevel]);
+  }
+  if (LEVELS.every(l => clearedLevels.includes(l.level)) && !earnedAchs.includes("allclear")) {
+    toUnlock.push("allclear");
+  }
+  if (flawlessRound && !earnedAchs.includes("flawless")) {
+    toUnlock.push("flawless");
+  }
+  if (levelGoalReachedTimeLeft >= 60 && !earnedAchs.includes("speed")) {
+    toUnlock.push("speed");
+  }
+  if (score >= 2000 && !earnedAchs.includes("highroll")) {
+    toUnlock.push("highroll");
+  }
+
+  toUnlock.forEach(id => { if (!earnedAchs.includes(id)) earnedAchs.push(id); });
+  if (toUnlock.length) { saveLevelData(); queueToasts(toUnlock); }
+}
+
+// ── ACHIEVEMENT TOASTS ────────────────────────────────────────────────────────
+function queueToasts(ids) {
+  ids.forEach(id => toastQueue.push(id));
+  if (!toastDraining) drainToastQueue();
+}
+
+function drainToastQueue() {
+  if (!toastQueue.length) { toastDraining = false; return; }
+  toastDraining = true;
+  const id  = toastQueue.shift();
+  const ach = ACHIEVEMENTS.find(a => a.id === id);
+  if (!ach) { drainToastQueue(); return; }
+
+  const el = document.getElementById("achievement-toast");
+  document.getElementById("toast-icon").textContent = ach.icon;
+  document.getElementById("toast-name").textContent = ach.name;
+  document.getElementById("toast-desc").textContent = ach.desc;
+  el.classList.add("active");
+  setTimeout(() => {
+    el.classList.remove("active");
+    setTimeout(drainToastQueue, 500);
+  }, 3500);
+}
+
 newGame();
 </script>
+
+<!-- Achievement Toast -->
+<div class="achievement-toast" id="achievement-toast">
+  <div class="toast-icon" id="toast-icon">🏆</div>
+  <div class="toast-body">
+    <div class="toast-label">Achievement Unlocked!</div>
+    <div class="toast-name" id="toast-name"></div>
+    <div class="toast-desc" id="toast-desc"></div>
+  </div>
+</div>
+
 </body>
 </html>
