@@ -212,6 +212,8 @@
   .db-footer { display:flex; flex-direction:column; align-items:center; gap:8px; }
   .btn-play { background:#d4601a; color:white; border:none; border-radius:999px; padding:14px 52px; font-size:1.2em; font-weight:900; cursor:pointer; font-family:inherit; box-shadow:0 5px 0 #9a3f0a; letter-spacing:0.05em; text-transform:uppercase; }
   .btn-play:active { transform:translateY(5px); box-shadow:none; }
+  .btn-resume-game { background:#27ae60; color:white; border:none; border-radius:999px; padding:10px 32px; font-size:1em; font-weight:900; cursor:pointer; font-family:inherit; box-shadow:0 4px 0 #1a7a40; }
+  .btn-resume-game:active { transform:translateY(4px); box-shadow:none; }
   .deck-warning { color:#b03020; font-size:0.85em; font-weight:700; min-height:1.3em; text-align:center; }
 
   /* ── GAME SCREEN ─────────────────────────────────────────────────────────────── */
@@ -242,7 +244,7 @@
   .btn-new:active { transform:translateY(4px); box-shadow:none; }
   .btn-home { background:#7b2f9e; color:white; border:none; border-radius:999px; padding:7px 14px; font-size:0.82em; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:0 4px 0 #4a1060; }
   .btn-home:active { transform:translateY(4px); box-shadow:none; }
-  .customer-card { flex:1; aspect-ratio:5/7; overflow:hidden; position:relative; background:#1a1a2e; border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,0.18); padding:0; cursor:pointer; border:3px solid transparent; transition:transform 0.15s,border-color 0.15s; }
+  .customer-card { flex:1; max-width:325px; aspect-ratio:5/7; overflow:hidden; position:relative; background:#1a1a2e; border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,0.18); padding:0; cursor:pointer; border:3px solid transparent; transition:transform 0.15s,border-color 0.15s; }
   .customer-card:hover { transform:translateY(-3px); }
   .customer-card.selected { border-color:#27ae60; box-shadow:0 0 0 3px #27ae60; }
   .c-img { width:100%; height:100%; object-fit:cover; display:block; }
@@ -352,6 +354,8 @@
   .btn-feed-nofeed { background:#e67e22; color:white; border:none; border-radius:999px; padding:5px 10px; font-size:0.7em; font-weight:800; cursor:default; font-family:inherit; opacity:0.8; }
   .btn-horse-feed  { background:#8b6f47 !important; box-shadow:0 3px 0 #5a4230 !important; }
   .fc-horse-ready  { background:rgba(245,235,215,0.96) !important; border-color:#a07840 !important; }
+  .btn-bunny-feed  { background:#c87eb8 !important; box-shadow:0 3px 0 #8b4f8b !important; }
+  .fc-bunny-ready  { background:rgba(248,225,248,0.96) !important; border-color:#c080c0 !important; }
   .chicken-timer { font-size:0.76em; font-weight:800; color:#9a7050; }
 
   .farm-buy-box { display:flex; flex-direction:column; align-items:center; gap:8px; }
@@ -440,6 +444,29 @@
 
   .btn-title-garden { background:#27ae60; color:white; box-shadow:0 6px 0 #1a7a42; }
 
+  /* ── FISH FARM SCREEN ────────────────────────────────────────────────────── */
+  #screen-fish-farm { align-items: center; background: rgba(0,0,0,0.45); padding-bottom: 40px; }
+  .fish-farm-body { width:100%; max-width:960px; display:flex; gap:24px; align-items:flex-start; padding:0 20px; }
+  .fish-farm-left  { flex:0 0 220px; display:flex; flex-direction:column; gap:14px; }
+  .fish-farm-right { flex:1; min-width:0; display:flex; flex-direction:column; gap:18px; }
+  .btn-title-fish  { background:#0097a7; color:white; box-shadow:0 6px 0 #006064; }
+  .fc-fish-shrimp  { background:rgba(255,235,240,0.96) !important; border-color:#e91e63 !important; }
+  .fc-fish-salmon  { background:rgba(255,235,210,0.96) !important; border-color:#ff7043 !important; }
+  .fc-fish-crab    { background:rgba(255,215,215,0.96) !important; border-color:#e53935 !important; }
+  .fc-fish-lobster { background:rgba(240,205,205,0.96) !important; border-color:#b71c1c !important; }
+  .btn-fish-feed   { background:#0097a7 !important; box-shadow:0 3px 0 #006064 !important; }
+  .fish-buy-list   { display:flex; flex-direction:column; gap:6px; }
+  .fish-buy-row    { display:flex; align-items:center; gap:8px; background:rgba(253,243,227,0.9); border-radius:8px; padding:7px 10px; }
+  .fish-buy-emoji  { font-size:1.6em; line-height:1; flex-shrink:0; }
+  .fish-buy-info   { flex:1; min-width:0; }
+  .fish-buy-name   { font-size:0.8em; font-weight:900; color:#3d2b1f; }
+  .fish-buy-hint   { font-size:0.62em; color:#7a6255; font-weight:700; }
+  .btn-buy-fish    { background:#0097a7; color:white; border:none; border-radius:999px; padding:4px 10px; font-size:0.72em; font-weight:900; cursor:pointer; font-family:inherit; white-space:nowrap; }
+  .btn-buy-fish:hover:not(:disabled) { background:#00838f; }
+  .btn-buy-fish:disabled { background:#aaa; cursor:default; }
+  .fish-ing-badge  { font-size:0.6em; color:#0097a7; font-weight:800; text-align:center; }
+  .fish-card-img   { width:60px; height:60px; object-fit:contain; border-radius:10px; background:rgba(255,255,255,0.88); padding:5px; box-shadow:0 2px 10px rgba(0,150,170,0.3); }
+
   /* ── CARD SHOP SCREEN ───────────────────────────────────────────────────────── */
   #screen-card-shop { align-items: center; background: rgba(0,0,0,0.45); padding-bottom: 32px; }
   .cshop-body {
@@ -526,6 +553,9 @@
       <button class="btn-title btn-title-farm" onclick="goToFarm()">
         🐔 Farm
       </button>
+      <button class="btn-title btn-title-fish" onclick="goToFishFarm()">
+        🐟 Fish Farm
+      </button>
       <button class="btn-title btn-title-garden" onclick="goToGarden()">
         🌿 Garden
       </button>
@@ -576,7 +606,46 @@
       <div class="farm-chicken-grid" id="farm-chicken-grid"></div>
       <div class="farm-section-title" style="margin-top:8px">🐴 Horses</div>
       <div class="farm-chicken-grid" id="farm-horse-grid"></div>
+      <div class="farm-section-title" style="margin-top:8px">🐰 Bunnies</div>
+      <div class="farm-chicken-grid" id="farm-bunny-grid"></div>
       <div class="farm-buy-box" id="farm-buy-area"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FISH FARM SCREEN ────────────────────────────────────────────────────────── -->
+<div id="screen-fish-farm" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="leaveFishFarm()">← Back</button>
+    <div class="topbar-title">🐟 Fish Farm</div>
+    <div class="wallet-pill" id="fish-farm-wallet">💰 $0</div>
+  </div>
+  <div class="fish-farm-body">
+    <div class="fish-farm-left">
+      <div class="farm-section-title">🐠 Fish Food</div>
+      <div class="farm-feed-bar" id="fish-food-display">🐠 Food: 0 / 100</div>
+      <div style="color:rgba(255,255,255,0.6);font-size:0.72em;font-weight:700;text-align:center;margin-top:2px">+1 food every 20s</div>
+      <div class="farm-section-title" style="margin-top:10px">🛒 Buy Fish</div>
+      <div style="color:rgba(255,255,255,0.6);font-size:0.72em;font-weight:700;margin-bottom:6px">Feed a hungry fish → it produces a card → pick it up!</div>
+      <div class="fish-buy-list" id="fish-buy-list"></div>
+    </div>
+    <div class="fish-farm-right">
+      <div>
+        <div class="farm-section-title">🦐 Shrimp <span style="font-size:0.72em;opacity:0.7">— pick up cards for the restaurant</span></div>
+        <div class="farm-chicken-grid" id="fish-grid-shrimp"></div>
+      </div>
+      <div>
+        <div class="farm-section-title">🐟 Salmon</div>
+        <div class="farm-chicken-grid" id="fish-grid-salmon"></div>
+      </div>
+      <div>
+        <div class="farm-section-title">🦀 Crab</div>
+        <div class="farm-chicken-grid" id="fish-grid-crab"></div>
+      </div>
+      <div>
+        <div class="farm-section-title">🦞 Lobster</div>
+        <div class="farm-chicken-grid" id="fish-grid-lobster"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -677,7 +746,8 @@
       </div>
     </div>
     <div class="db-footer">
-      <button class="btn-play" onclick="startGameWithDeck()">🍣 Start Game!</button>
+      <button class="btn-resume-game" id="btn-resume-game" style="display:none" onclick="resumeGame()">▶ Resume Saved Game</button>
+      <button class="btn-play" onclick="startGameWithDeck()">🍣 New Game</button>
       <div class="deck-warning" id="deck-warning"></div>
     </div>
   </div>
@@ -1020,7 +1090,7 @@ function spendFromWallet(amount) {
 }
 
 function refreshWalletDisplays() {
-  ["title-wallet","shop-wallet","sell-wallet","card-shop-wallet","garden-wallet","farm-wallet"].forEach(id => {
+  ["title-wallet","shop-wallet","sell-wallet","card-shop-wallet","garden-wallet","farm-wallet","fish-farm-wallet"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.textContent = `💰 $${wallet}`;
   });
@@ -1053,13 +1123,14 @@ function goToShop() {
 // ── FARM ──────────────────────────────────────────────────────────────────────
 const CHICKEN_COOLDOWN = 15000;
 const HORSE_COOLDOWN   = 20000;
+const BUNNY_COOLDOWN   = 15000;
 const FARM_FEED_MAX    = 50;
 
 // feedType: "chicken" feeds chickens, "horse" feeds horses, "both" feeds both
 const FARM_CROPS = [
   { emoji:"🌾", name:"Wheat",     cost:2,  rate:1/20, feedType:"chicken", label:"1 🐔 feed / 20s" },
   { emoji:"🌽", name:"Corn",      cost:6,  rate:1/12, feedType:"chicken", label:"1 🐔 feed / 12s" },
-  { emoji:"🥕", name:"Carrot",    cost:8,  rate:1/18, feedType:"horse",   label:"1 🐴 feed / 18s" },
+  { emoji:"🥕", name:"Carrot",    cost:8,  rate:1/18, feedType:"bunny",   label:"1 🐰 feed / 18s" },
   { emoji:"🫘", name:"Soybeans",  cost:12, rate:1/10, feedType:"horse",   label:"1 🐴 feed / 10s" },
   { emoji:"🌻", name:"Sunflower", cost:35, rate:1/8,  feedType:"both",    label:"1 of each / 8s"  },
 ];
@@ -1096,6 +1167,18 @@ let farmHorseFeed = (() => {
   const v = parseFloat(localStorage.getItem("cookcards_farm_horse_feed")||"0");
   return isNaN(v) ? 0 : v;
 })();
+let farmBunnies = (() => {
+  const v = parseInt(localStorage.getItem("cookcards_farm_bunnies")||"0", 10);
+  return isNaN(v) ? 0 : Math.max(0, v);
+})();
+let farmBunnyFedTimes = (() => {
+  try { return JSON.parse(localStorage.getItem("cookcards_farm_bunny_fed")||"[]"); }
+  catch { return []; }
+})();
+let farmBunnyFeed = (() => {
+  const v = parseFloat(localStorage.getItem("cookcards_farm_bunny_feed")||"0");
+  return isNaN(v) ? 0 : v;
+})();
 let farmLastTick = (() => {
   const v = parseInt(localStorage.getItem("cookcards_farm_tick")||"0", 10);
   return v || Date.now();
@@ -1110,6 +1193,9 @@ function saveFarm() {
   localStorage.setItem("cookcards_farm_garden",       JSON.stringify(farmGardenPlots));
   localStorage.setItem("cookcards_farm_chicken_feed", farmChickenFeed.toFixed(4));
   localStorage.setItem("cookcards_farm_horse_feed",   farmHorseFeed.toFixed(4));
+  localStorage.setItem("cookcards_farm_bunnies",      farmBunnies);
+  localStorage.setItem("cookcards_farm_bunny_fed",    JSON.stringify(farmBunnyFedTimes));
+  localStorage.setItem("cookcards_farm_bunny_feed",   farmBunnyFeed.toFixed(4));
   localStorage.setItem("cookcards_farm_tick",         farmLastTick);
 }
 
@@ -1125,11 +1211,14 @@ function tickFarmFeed() {
       farmChickenFeed = Math.min(FARM_FEED_MAX, farmChickenFeed + crop.rate * secs);
     if (crop.feedType === "horse" || crop.feedType === "both")
       farmHorseFeed = Math.min(FARM_FEED_MAX, farmHorseFeed + crop.rate * secs);
+    if (crop.feedType === "bunny")
+      farmBunnyFeed = Math.min(FARM_FEED_MAX, farmBunnyFeed + crop.rate * secs);
   });
 }
 
 function canFeedChicken(idx) { return Date.now() - (farmFedTimes[idx]||0) >= CHICKEN_COOLDOWN; }
 function canFeedHorse(idx)   { return Date.now() - (farmHorseFedTimes[idx]||0) >= HORSE_COOLDOWN; }
+function canFeedBunny(idx)   { return Date.now() - (farmBunnyFedTimes[idx]||0) >= BUNNY_COOLDOWN; }
 
 function feedChicken(idx) {
   if (!canFeedChicken(idx) || farmChickenFeed < 1) return;
@@ -1151,6 +1240,16 @@ function feedHorse(idx) {
   renderFeedDisplay();
 }
 
+function feedBunny(idx) {
+  if (!canFeedBunny(idx) || farmBunnyFeed < 1) return;
+  farmBunnyFedTimes[idx] = Date.now();
+  farmBunnyFeed = Math.max(0, farmBunnyFeed - 1);
+  addToWallet(2);
+  saveFarm();
+  renderBunnies();
+  renderFeedDisplay();
+}
+
 function buyChicken() {
   const cost = farmChickens * 5;
   if (!spendFromWallet(cost)) return;
@@ -1166,6 +1265,15 @@ function buyHorse() {
   farmHorses++;
   saveFarm();
   renderHorses();
+  renderFarmBuyArea();
+}
+
+function buyBunny() {
+  const cost = (farmBunnies + 1) * 6;
+  if (!spendFromWallet(cost)) return;
+  farmBunnies++;
+  saveFarm();
+  renderBunnies();
   renderFarmBuyArea();
 }
 
@@ -1190,6 +1298,7 @@ function goToFarm() {
   renderSeedShop();
   renderChickens();
   renderHorses();
+  renderBunnies();
   renderFarmBuyArea();
   if (farmTimerInterval) clearInterval(farmTimerInterval);
   farmTimerInterval = setInterval(() => {
@@ -1199,6 +1308,7 @@ function goToFarm() {
     tickFarmFeed();
     renderChickens();
     renderHorses();
+    renderBunnies();
     renderFeedDisplay();
   }, 500);
 }
@@ -1235,7 +1345,7 @@ function renderFarmGarden() {
 
 function renderFeedDisplay() {
   const el = document.getElementById("farm-feed-display");
-  if (el) el.innerHTML = `🐔 ${Math.floor(farmChickenFeed)}/${FARM_FEED_MAX} &nbsp;·&nbsp; 🐴 ${Math.floor(farmHorseFeed)}/${FARM_FEED_MAX}`;
+  if (el) el.innerHTML = `🐔 ${Math.floor(farmChickenFeed)}/${FARM_FEED_MAX} &nbsp;·&nbsp; 🐴 ${Math.floor(farmHorseFeed)}/${FARM_FEED_MAX} &nbsp;·&nbsp; 🐰 ${Math.floor(farmBunnyFeed)}/${FARM_FEED_MAX}`;
 }
 
 function renderSeedShop() {
@@ -1245,7 +1355,7 @@ function renderSeedShop() {
   const hasEmpty = farmGardenPlots.includes(null);
   FARM_CROPS.forEach(crop => {
     const canAfford = wallet >= crop.cost;
-    const typeTag = crop.feedType === "both" ? "🐔🐴" : crop.feedType === "chicken" ? "🐔" : "🐴";
+    const typeTag = crop.feedType === "both" ? "🐔🐴" : crop.feedType === "chicken" ? "🐔" : crop.feedType === "bunny" ? "🐰" : "🐴";
     const row = document.createElement("div");
     row.className = "farm-seed-row";
     row.innerHTML = `
@@ -1279,7 +1389,7 @@ function renderChickens() {
       ${hungry && hasFeed
         ? `<button class="btn-feed" onclick="feedChicken(${i})">🌾 Feed! (+$1)</button>`
         : hungry
-          ? `<button class="btn-feed-nofeed">No wheat!</button>`
+          ? `<button class="btn-feed-nofeed">No feed!</button>`
           : `<div class="chicken-timer">Hungry in ${remaining}s</div>`
       }
     `;
@@ -1307,7 +1417,35 @@ function renderHorses() {
       ${hungry && hasFeed
         ? `<button class="btn-feed btn-horse-feed" onclick="feedHorse(${i})">🫘 Feed! (+$3)</button>`
         : hungry
-          ? `<button class="btn-feed-nofeed">No soybeans!</button>`
+          ? `<button class="btn-feed-nofeed">No beans!</button>`
+          : `<div class="chicken-timer">Hungry in ${remaining}s</div>`
+      }
+    `;
+    grid.appendChild(div);
+  }
+}
+
+function renderBunnies() {
+  const grid = document.getElementById("farm-bunny-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  if (farmBunnies === 0) {
+    grid.innerHTML = `<div style="color:rgba(255,255,255,0.45);font-size:0.78em;font-weight:700;text-align:center;padding:10px">No bunnies yet</div>`;
+    return;
+  }
+  for (let i = 0; i < farmBunnies; i++) {
+    const hungry   = canFeedBunny(i);
+    const hasFeed  = farmBunnyFeed >= 1;
+    const remaining = hungry ? 0 : Math.ceil((BUNNY_COOLDOWN - (Date.now() - (farmBunnyFedTimes[i]||0))) / 1000);
+    const div = document.createElement("div");
+    div.className = "farm-chicken " + (hungry && hasFeed ? "fc-ready fc-bunny-ready" : hungry ? "fc-hungry" : "fc-waiting");
+    div.innerHTML = `
+      <div class="chicken-emoji">${hungry && hasFeed ? "🐰" : hungry ? "😩" : "😴"}</div>
+      <div class="chicken-label">Bunny ${i + 1}</div>
+      ${hungry && hasFeed
+        ? `<button class="btn-feed btn-bunny-feed" onclick="feedBunny(${i})">🥕 Feed! (+$2)</button>`
+        : hungry
+          ? `<button class="btn-feed-nofeed">No carrots!</button>`
           : `<div class="chicken-timer">Hungry in ${remaining}s</div>`
       }
     `;
@@ -1318,8 +1456,9 @@ function renderHorses() {
 function renderFarmBuyArea() {
   const area = document.getElementById("farm-buy-area");
   if (!area) return;
-  const chickCost = farmChickens * 5;
-  const horseCost = (farmHorses + 1) * 10;
+  const chickCost  = farmChickens * 5;
+  const horseCost  = (farmHorses + 1) * 10;
+  const bunnyCost  = (farmBunnies + 1) * 6;
   area.innerHTML = `
     <button class="btn-buy-chicken" onclick="buyChicken()" ${wallet >= chickCost ? "" : "disabled"}>
       🐣 Buy Chicken ($${chickCost})
@@ -1327,8 +1466,210 @@ function renderFarmBuyArea() {
     <button class="btn-buy-chicken" style="background:#8b6f47;box-shadow:0 5px 0 #5a4230" onclick="buyHorse()" ${wallet >= horseCost ? "" : "disabled"}>
       🐴 Buy Horse ($${horseCost})
     </button>
-    <div class="farm-buy-note">${farmChickens} chicken${farmChickens!==1?"s":""} · ${farmHorses} horse${farmHorses!==1?"s":""}</div>
+    <button class="btn-buy-chicken" style="background:#c87eb8;box-shadow:0 5px 0 #8b4f8b" onclick="buyBunny()" ${wallet >= bunnyCost ? "" : "disabled"}>
+      🐰 Buy Bunny ($${bunnyCost})
+    </button>
+    <div class="farm-buy-note">${farmChickens} chicken${farmChickens!==1?"s":""} · ${farmHorses} horse${farmHorses!==1?"s":""} · ${farmBunnies} bun${farmBunnies!==1?"nies":"ny"}</div>
   `;
+}
+
+// ── FISH FARM ─────────────────────────────────────────────────────────────────
+const FISH_TYPES = [
+  { id:"shrimp",  emoji:"🦐", name:"Shrimp",  ingredient:"Shrimp",  img:"shrimp.png",  cooldown:20000, buyCostBase:5,  cssClass:"fc-fish-shrimp"  },
+  { id:"salmon",  emoji:"🐟", name:"Salmon",  ingredient:"Salmon",  img:"salmon.png",  cooldown:30000, buyCostBase:8,  cssClass:"fc-fish-salmon"  },
+  { id:"crab",    emoji:"🦀", name:"Crab",    ingredient:"Crab",    img:"crab.png",    cooldown:45000, buyCostBase:12, cssClass:"fc-fish-crab"    },
+  { id:"lobster", emoji:"🦞", name:"Lobster", ingredient:"Lobster", img:"lobster.png", cooldown:60000, buyCostBase:20, cssClass:"fc-fish-lobster" },
+];
+
+const FISH_FOOD_MAX  = 100;
+const FISH_FOOD_RATE = 1 / 20;
+
+let farmFishCounts = (() => {
+  try {
+    const raw = JSON.parse(localStorage.getItem("cookcards_fish_counts") || "null");
+    return raw || { shrimp:0, salmon:0, crab:0, lobster:0 };
+  } catch { return { shrimp:0, salmon:0, crab:0, lobster:0 }; }
+})();
+
+// when each fish slot last started its cooldown (pick-up resets this)
+let farmFishPickedTimes = (() => {
+  try { return JSON.parse(localStorage.getItem("cookcards_fish_picked") || "null") || { shrimp:[], salmon:[], crab:[], lobster:[] }; }
+  catch { return { shrimp:[], salmon:[], crab:[], lobster:[] }; }
+})();
+
+// when each fish slot was last fed (feeding sets this)
+let farmFishFedTimes = (() => {
+  try { return JSON.parse(localStorage.getItem("cookcards_fish_fed2") || "null") || { shrimp:[], salmon:[], crab:[], lobster:[] }; }
+  catch { return { shrimp:[], salmon:[], crab:[], lobster:[] }; }
+})();
+
+let farmFishFood = (() => {
+  const v = parseFloat(localStorage.getItem("cookcards_fish_food") || "0");
+  return isNaN(v) ? 0 : v;
+})();
+
+let farmFishLastTick = (() => {
+  const v = parseInt(localStorage.getItem("cookcards_fish_tick") || "0", 10);
+  return v || Date.now();
+})();
+
+let farmFishInterval = null;
+
+function saveFishFarm() {
+  localStorage.setItem("cookcards_fish_counts",  JSON.stringify(farmFishCounts));
+  localStorage.setItem("cookcards_fish_picked",  JSON.stringify(farmFishPickedTimes));
+  localStorage.setItem("cookcards_fish_fed2",    JSON.stringify(farmFishFedTimes));
+  localStorage.setItem("cookcards_fish_food",    farmFishFood.toFixed(4));
+  localStorage.setItem("cookcards_fish_tick",    farmFishLastTick);
+}
+
+function tickFishFood() {
+  const now  = Date.now();
+  const secs = (now - farmFishLastTick) / 1000;
+  farmFishLastTick = now;
+  farmFishFood = Math.min(FISH_FOOD_MAX, farmFishFood + FISH_FOOD_RATE * secs);
+}
+
+// Returns "sleeping" | "hungry" | "fed"
+function getFishState(fishId, idx) {
+  const ft         = FISH_TYPES.find(f => f.id === fishId);
+  const pickedAt   = (farmFishPickedTimes[fishId] || [])[idx] || 0;
+  const fedAt      = (farmFishFedTimes[fishId]    || [])[idx] || 0;
+  if (fedAt > pickedAt) return "fed";
+  if (Date.now() - pickedAt >= ft.cooldown) return "hungry";
+  return "sleeping";
+}
+
+function feedFish(fishId, idx) {
+  if (getFishState(fishId, idx) !== "hungry" || farmFishFood < 1) return;
+  if (!farmFishFedTimes[fishId])   farmFishFedTimes[fishId]   = [];
+  farmFishFedTimes[fishId][idx] = Date.now();
+  farmFishFood = Math.max(0, farmFishFood - 1);
+  saveFishFarm();
+  renderFishGrid(fishId);
+  renderFishFoodDisplay();
+}
+
+function pickUpFish(fishId, idx) {
+  if (getFishState(fishId, idx) !== "fed") return;
+  const ft = FISH_TYPES.find(f => f.id === fishId);
+  if (!farmFishPickedTimes[fishId]) farmFishPickedTimes[fishId] = [];
+  farmFishPickedTimes[fishId][idx] = Date.now();
+  collection.ingredients[ft.ingredient] = (collection.ingredients[ft.ingredient] || 0) + 1;
+  saveCollection();
+  saveFishFarm();
+  renderFishGrid(fishId);
+}
+
+function buyFish(fishId) {
+  const ft    = FISH_TYPES.find(f => f.id === fishId);
+  const count = farmFishCounts[fishId] || 0;
+  const cost  = ft.buyCostBase * (count + 1);
+  if (!spendFromWallet(cost)) return;
+  farmFishCounts[fishId] = count + 1;
+  saveFishFarm();
+  renderFishGrid(fishId);
+  renderFishBuyList();
+}
+
+function goToFishFarm() {
+  tickFishFood();
+  showScreen("screen-fish-farm");
+  refreshWalletDisplays();
+  renderFishFoodDisplay();
+  renderFishBuyList();
+  FISH_TYPES.forEach(ft => renderFishGrid(ft.id));
+  if (farmFishInterval) clearInterval(farmFishInterval);
+  farmFishInterval = setInterval(() => {
+    if (!document.getElementById("screen-fish-farm").classList.contains("active")) {
+      clearInterval(farmFishInterval); farmFishInterval = null; return;
+    }
+    tickFishFood();
+    FISH_TYPES.forEach(ft => renderFishGrid(ft.id));
+    renderFishFoodDisplay();
+  }, 500);
+}
+
+function leaveFishFarm() {
+  tickFishFood();
+  saveFishFarm();
+  if (farmFishInterval) { clearInterval(farmFishInterval); farmFishInterval = null; }
+  showScreen("screen-title");
+  refreshWalletDisplays();
+}
+
+function renderFishFoodDisplay() {
+  const el = document.getElementById("fish-food-display");
+  if (el) el.textContent = `🐠 Fish Food: ${Math.floor(farmFishFood)} / ${FISH_FOOD_MAX}`;
+}
+
+function renderFishBuyList() {
+  const list = document.getElementById("fish-buy-list");
+  if (!list) return;
+  list.innerHTML = "";
+  FISH_TYPES.forEach(ft => {
+    const count     = farmFishCounts[ft.id] || 0;
+    const cost      = ft.buyCostBase * (count + 1);
+    const canAfford = wallet >= cost;
+    const row = document.createElement("div");
+    row.className = "fish-buy-row";
+    row.innerHTML = `
+      <div class="fish-buy-emoji">${ft.emoji}</div>
+      <div class="fish-buy-info">
+        <div class="fish-buy-name">${ft.name} (own: ${count})</div>
+        <div class="fish-buy-hint">Feed → card appears → pick up!</div>
+      </div>
+      <button class="btn-buy-fish" onclick="buyFish('${ft.id}')" ${canAfford ? "" : "disabled"}>
+        Buy ($${cost})
+      </button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function renderFishGrid(fishId) {
+  const grid = document.getElementById(`fish-grid-${fishId}`);
+  if (!grid) return;
+  const ft    = FISH_TYPES.find(f => f.id === fishId);
+  const count = farmFishCounts[fishId] || 0;
+  grid.innerHTML = "";
+  if (count === 0) {
+    grid.innerHTML = `<div style="color:rgba(255,255,255,0.45);font-size:0.78em;font-weight:700;padding:8px">No ${ft.name} yet — buy one!</div>`;
+    return;
+  }
+  for (let i = 0; i < count; i++) {
+    const state = getFishState(fishId, i);
+    const div   = document.createElement("div");
+    if (state === "fed") {
+      div.className = "farm-chicken fc-ready " + ft.cssClass;
+      div.innerHTML = `
+        <img class="fish-card-img" src="images/ingredients/${ft.img}" alt="${ft.ingredient}">
+        <div class="chicken-label">${ft.name} ${i + 1}</div>
+        <button class="btn-feed btn-fish-feed" onclick="pickUpFish('${fishId}',${i})">🎣 Pick Up!</button>
+        <div class="fish-ing-badge">+1 ${ft.ingredient} card</div>
+      `;
+    } else if (state === "hungry") {
+      const hasFood = farmFishFood >= 1;
+      div.className = "farm-chicken " + (hasFood ? "fc-ready " + ft.cssClass : "fc-hungry " + ft.cssClass);
+      div.innerHTML = `
+        <div class="chicken-emoji">${ft.emoji}</div>
+        <div class="chicken-label">${ft.name} ${i + 1}</div>
+        ${hasFood
+          ? `<button class="btn-feed btn-fish-feed" onclick="feedFish('${fishId}',${i})">🐠 Feed!</button>`
+          : `<button class="btn-feed-nofeed">No food!</button>`}
+      `;
+    } else {
+      const pickedAt  = (farmFishPickedTimes[fishId] || [])[i] || 0;
+      const remaining = Math.ceil((ft.cooldown - (Date.now() - pickedAt)) / 1000);
+      div.className = "farm-chicken fc-waiting";
+      div.innerHTML = `
+        <div class="chicken-emoji">😴</div>
+        <div class="chicken-label">${ft.name} ${i + 1}</div>
+        <div class="chicken-timer">Hungry in ${remaining}s</div>
+      `;
+    }
+    grid.appendChild(div);
+  }
 }
 
 function goToGarden() {
@@ -1490,6 +1831,7 @@ function goToPlay() {
 }
 
 function saveScoreAndGoHome() {
+  clearGameSave();
   if (gameActive || score > 0) awardScore();
   showScreen("screen-title");
   refreshWalletDisplays();
@@ -1775,6 +2117,97 @@ const DECK_MIN      = 10;
 const CUST_DECK_MAX = 50;
 const CUST_MIN      = 4;
 
+// ── GAME SAVE STATE ───────────────────────────────────────────────────────────
+const SAVE_KEY = "cookcards_game_save";
+
+function saveGame() {
+  if (!gameActive) return;
+  const state = {
+    score, serveCount, timeLeft, sideBetBonus, flawlessRound, encoreActive,
+    hand: hand.map(c => c.isWild ? "__WILD__" : c.name),
+    ingredientDeck:  ingredientDeck.map(c => c.isWild ? "__WILD__" : c.name),
+    deckDiscard:     deckDiscard.map(c => c.isWild ? "__WILD__" : c.name),
+    customerDeck:    customerDeck.map(c => c.name),
+    customerDiscard: customerDiscard.map(c => c.name),
+    deckIngCounts, deckCustomerCounts,
+    activeCustomers: activeCustomers.map(slot => {
+      const s = { customerName: slot.customer.name, dishName: slot.dish.name, patience: slot.patience };
+      if (slot.wildIndex        !== undefined) s.wildIndex         = slot.wildIndex;
+      if (slot.hiddenIngredient !== undefined) { s.hiddenIngredient = slot.hiddenIngredient; s.hintShown = slot.hintShown; }
+      if (slot.tidalBonus       !== undefined) s.tidalBonus        = slot.tidalBonus;
+      if (slot.furyBonus        !== undefined) s.furyBonus         = slot.furyBonus;
+      if (slot.servesBefore     !== undefined) s.servesBefore      = slot.servesBefore;
+      if (slot.serveCountAtSpawn !== undefined) s.serveCountAtSpawn = slot.serveCountAtSpawn;
+      return s;
+    }),
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+}
+
+function clearGameSave() { localStorage.removeItem(SAVE_KEY); }
+function hasGameSave()    { return !!localStorage.getItem(SAVE_KEY); }
+
+function resumeGame() {
+  try {
+    const state = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (!state) return false;
+
+    deckIngCounts      = state.deckIngCounts      || {};
+    deckCustomerCounts = state.deckCustomerCounts  || {};
+    score         = state.score        ?? 0;
+    serveCount    = state.serveCount   ?? 0;
+    sideBetBonus  = state.sideBetBonus ?? 0;
+    flawlessRound = state.flawlessRound ?? true;
+    encoreActive  = state.encoreActive  ?? false;
+    scoreAwarded  = false;
+
+    const ingByName = ing => {
+      if (ing === "__WILD__") return { name:"Wild", isWild:true, emoji:"🃏", rarity:"legendary" };
+      return ingredients.find(i => i.name === ing) || ingredients[0];
+    };
+    const custByName = name => customerList.find(c => c.name === name);
+    const dishByName = name => dishes.find(d => d.name === name);
+
+    hand            = (state.hand || []).map(ingByName);
+    ingredientDeck  = (state.ingredientDeck  || []).map(ingByName);
+    deckDiscard     = (state.deckDiscard     || []).map(ingByName);
+    customerDeck    = (state.customerDeck    || []).map(custByName).filter(Boolean);
+    customerDiscard = (state.customerDiscard || []).map(custByName).filter(Boolean);
+
+    activeCustomers = (state.activeCustomers || []).map(s => {
+      const customer = custByName(s.customerName);
+      const dish     = dishByName(s.dishName);
+      if (!customer || !dish) return null;
+      const slot = { customer, dish, patience: s.patience };
+      if (s.wildIndex        !== undefined) slot.wildIndex         = s.wildIndex;
+      if (s.hiddenIngredient !== undefined) { slot.hiddenIngredient = s.hiddenIngredient; slot.hintShown = s.hintShown; }
+      if (s.tidalBonus       !== undefined) slot.tidalBonus        = s.tidalBonus;
+      if (s.furyBonus        !== undefined) slot.furyBonus         = s.furyBonus;
+      if (s.servesBefore     !== undefined) slot.servesBefore      = s.servesBefore;
+      if (s.serveCountAtSpawn !== undefined) slot.serveCountAtSpawn = s.serveCountAtSpawn;
+      return slot;
+    }).filter(Boolean);
+
+    selectedCustomer = null; selectedIdxs = new Set();
+    gameActive = true; paused = false;
+    document.getElementById("score").textContent = score;
+    closeDeckBuilder();
+    showScreen("screen-game");
+    render(); renderDeckPiles();
+    const pb = document.getElementById("btn-pause"); if (pb) pb.textContent = "⏸️ Pause";
+    document.getElementById("customers").classList.remove("blacked-out");
+    document.getElementById("hand").classList.remove("blacked-out");
+    timeLeft = state.timeLeft ?? TIME_START;
+    updateTimerDisplay();
+    timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) endGame(); }, 1000);
+    setStatus("Game restored — keep going! 🍣", "ok");
+    return true;
+  } catch(e) {
+    clearGameSave();
+    return false;
+  }
+}
+
 // ── DECK STATE ────────────────────────────────────────────────────────────────
 let ingredientDeck   = [];
 let deckDiscard      = [];
@@ -1899,6 +2332,8 @@ function openDeckBuilder() {
   renderDeckBuilder();
   document.getElementById("deck-builder").classList.add("active");
   document.getElementById("deck-warning").textContent="";
+  const rb=document.getElementById("btn-resume-game");
+  if(rb) rb.style.display = hasGameSave() ? "" : "none";
 }
 
 function closeDeckBuilder() { document.getElementById("deck-builder").classList.remove("active"); }
@@ -1979,6 +2414,7 @@ function updateCustCount() {
 function startGameWithDeck() {
   if(totalIngCards()<DECK_MIN){document.getElementById("deck-warning").textContent=`⚠️ Add at least ${DECK_MIN} ingredient cards`;return;}
   if(totalCustCards()<CUST_MIN){document.getElementById("deck-warning").textContent=`⚠️ Add at least ${CUST_MIN} customer cards`;return;}
+  clearGameSave();
   closeDeckBuilder(); showScreen("screen-game");
 
   ingredientDeck=buildIngredientDeck(); deckDiscard=[];
@@ -2027,6 +2463,7 @@ function flashTime(text,color) {
 
 function endGame() {
   clearInterval(timerInterval);gameActive=false;paused=false;timeLeft=0;
+  clearGameSave();
   updateTimerDisplay();
   document.getElementById("customers").classList.remove("blacked-out");
   document.getElementById("hand").classList.remove("blacked-out");
@@ -2228,6 +2665,7 @@ function handleCorrectOrder() {
   }
 
   setStatus(msg,"ok");selectedCustomer=null;selectedIdxs=new Set();render();
+  saveGame();
 }
 
 function discardSelected() {
