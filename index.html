@@ -1392,8 +1392,8 @@ const ACHIEVEMENTS = [
   { id:"highroll", icon:"💰",  name:"Big Spender",   desc:"Score $2000+ in a single run" },
 ];
 
-// Level state
-let currentLevel     = null;  // null = free play, number = active level
+// Level state — starts at 1; null only when user picks Free Play from modal
+let currentLevel     = 1;
 let clearedLevels    = JSON.parse(localStorage.getItem("cookcards_cleared") || "[]");
 let earnedAchs       = JSON.parse(localStorage.getItem("cookcards_achs")    || "[]");
 let levelGoalReachedTimeLeft = -1;  // timeLeft snapshot when goal was first crossed
