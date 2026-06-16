@@ -859,13 +859,9 @@ function endGame() {
   paused     = false;
   timeLeft   = 0;
   updateTimerDisplay();
-  endLevelCheck();
-  const cleared = currentLevel && clearedLevels.includes(currentLevel);
-  const lv = currentLevel ? LEVELS.find(l => l.level === currentLevel) : null;
-  if (lv && cleared) {
-    setStatus(`✅ Level ${lv.level} cleared! $${score} / $${lv.goal} — press New Game or pick a level!`, "");
-  } else if (lv && !cleared) {
-    setStatus(`❌ Level ${lv.level} failed — needed $${lv.goal}, got $${score}. Try again!`, "error");
+  if (currentLevel) {
+    const lv = LEVELS.find(l => l.level === currentLevel);
+    setStatus(`❌ Level ${lv ? lv.level : ""} failed — needed $${lv ? lv.goal : "?"}, got $${score}. Try again!`, "error");
   } else {
     setStatus(`⏱️ Time's up! Final score: $${score} — press New Game to play again!`, "error");
   }
@@ -1267,7 +1263,7 @@ function handleCorrectOrder() {
   usedDishNames.push(newServed.dish.name);
   activeCustomers[servedIdx] = newServed;
 
-  addTime(TIME_SERVE, "⏱️");
+  addTime(getServeBonus(), "⏱️");
 
   // ── Replace departed customers and apply penalty ──────────────────────────────
   if (departed.length > 0) {
@@ -1368,16 +1364,16 @@ function renderPausedCards() {
 
 // ── LEVELS & ACHIEVEMENTS ────────────────────────────────────────────────────
 const LEVELS = [
-  { level:1,  title:"Apprentice",     goal:80,   time:150, patience:5 },
-  { level:2,  title:"Kitchen Helper", goal:160,  time:145, patience:5 },
-  { level:3,  title:"Line Cook",      goal:280,  time:140, patience:5 },
-  { level:4,  title:"Prep Chef",      goal:440,  time:130, patience:4 },
-  { level:5,  title:"Sous Chef",      goal:640,  time:120, patience:4 },
-  { level:6,  title:"Chef de Partie", goal:880,  time:110, patience:4 },
-  { level:7,  title:"Senior Chef",    goal:1160, time:100, patience:3 },
-  { level:8,  title:"Head Chef",      goal:1500, time:90,  patience:3 },
-  { level:9,  title:"Executive Chef", goal:1900, time:80,  patience:3 },
-  { level:10, title:"Master Chef",    goal:2500, time:70,  patience:2 },
+  { level:1,  title:"Apprentice",     goal:80,   time:150, patience:5, serve:30 },
+  { level:2,  title:"Kitchen Helper", goal:160,  time:145, patience:5, serve:28 },
+  { level:3,  title:"Line Cook",      goal:280,  time:140, patience:5, serve:26 },
+  { level:4,  title:"Prep Chef",      goal:440,  time:130, patience:4, serve:24 },
+  { level:5,  title:"Sous Chef",      goal:640,  time:120, patience:4, serve:22 },
+  { level:6,  title:"Chef de Partie", goal:880,  time:110, patience:4, serve:20 },
+  { level:7,  title:"Senior Chef",    goal:1160, time:100, patience:3, serve:18 },
+  { level:8,  title:"Head Chef",      goal:1500, time:90,  patience:3, serve:16 },
+  { level:9,  title:"Executive Chef", goal:1900, time:80,  patience:3, serve:14 },
+  { level:10, title:"Master Chef",    goal:2500, time:70,  patience:2, serve:12 },
 ];
 
 const ACHIEVEMENTS = [
@@ -1492,21 +1488,58 @@ function renderLevelGoalBar() {
   const lv = LEVELS.find(l => l.level === currentLevel);
   if (!lv) { bar.style.display = "none"; return; }
 
-  const pct     = Math.min(100, Math.round((score / lv.goal) * 100));
-  const cleared = score >= lv.goal;
+  const pct = Math.min(100, Math.round((score / lv.goal) * 100));
 
-  // Snapshot timeLeft when goal is first crossed (for speed achievement)
-  if (cleared && levelGoalReachedTimeLeft < 0) {
-    levelGoalReachedTimeLeft = timeLeft;
+  // Goal first crossed while game is active → immediately clear the level
+  if (score >= lv.goal && levelGoalReachedTimeLeft < 0 && gameActive) {
+    levelCleared();
+    return;
   }
 
   bar.style.display = "block";
   bar.innerHTML = `
     <div class="goal-label">Level ${lv.level}: ${lv.title} &nbsp;—&nbsp; Goal $${lv.goal}</div>
     <div class="goal-track">
-      <div class="goal-fill ${cleared ? "goal-fill-done" : "goal-fill-progress"}" style="width:${pct}%"></div>
+      <div class="goal-fill goal-fill-progress" style="width:${pct}%"></div>
+    </div>`;
+}
+
+function getServeBonus() {
+  if (!currentLevel) return TIME_SERVE;
+  const lv = LEVELS.find(l => l.level === currentLevel);
+  return lv ? lv.serve : TIME_SERVE;
+}
+
+function levelCleared() {
+  const lv = LEVELS.find(l => l.level === currentLevel);
+  if (!lv) return;
+
+  levelGoalReachedTimeLeft = timeLeft;
+  clearInterval(timerInterval);
+  gameActive = false;
+  paused = false;
+  updateTimerDisplay();
+
+  // Award achievements
+  endLevelCheck();
+
+  // Show cleared bar
+  const bar = document.getElementById("level-goal-bar");
+  bar.style.display = "block";
+  bar.innerHTML = `
+    <div class="goal-label">Level ${lv.level}: ${lv.title}</div>
+    <div class="goal-track">
+      <div class="goal-fill goal-fill-done" style="width:100%"></div>
     </div>
-    ${cleared ? '<div class="goal-cleared">✅ Goal cleared! Keep scoring or wait for time.</div>' : ""}`;
+    <div class="goal-cleared">✅ Level ${lv.level} cleared!</div>`;
+
+  const nextLv = LEVELS.find(l => l.level === currentLevel + 1);
+  if (nextLv) {
+    setStatus(`🎉 Level ${lv.level} cleared! Next up: ${nextLv.title} — Goal $${nextLv.goal}`, "ok");
+    setTimeout(() => startLevel(currentLevel + 1), 2500);
+  } else {
+    setStatus(`🏆 Master Chef! You cleared all 10 levels — you're a legend!`, "ok");
+  }
 }
 
 // ── END-OF-LEVEL CHECK ────────────────────────────────────────────────────────
