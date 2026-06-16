@@ -254,7 +254,43 @@
     .left-panel { width: 100%; flex: none; }
     .right-panel { flex: none; width: 100%; }
     .sidebar { flex-direction: row; flex-wrap: wrap; max-width: none; justify-content: space-between; align-items: center; }
-    .customer-card { aspect-ratio: 5/7; }
+
+    /* Card border wraps only the portrait; info flows below outside the card */
+    .customer-card {
+      overflow: visible;
+      aspect-ratio: unset;
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+    }
+    .customer-card.selected { border-color: transparent; box-shadow: none; }
+
+    /* Portrait image gets its own border + selection highlight */
+    .c-img {
+      border-radius: 14px;
+      height: auto;
+      aspect-ratio: 5 / 7;
+      flex-shrink: 0;
+      border: 3px solid transparent;
+      box-sizing: border-box;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .customer-card.selected .c-img {
+      border-color: #27ae60;
+      box-shadow: 0 0 0 3px #27ae60;
+    }
+
+    /* Overlay leaves absolute positioning and sits below the portrait */
+    .c-overlay {
+      position: relative;
+      bottom: auto; left: auto; right: auto;
+      background: rgba(15, 15, 35, 0.96);
+      border-radius: 0 0 10px 10px;
+      padding: 5px 6px 5px;
+      margin-top: 0;
+    }
   }
 
   /* ── WELCOME OVERLAY ──────────────────────────────────────────────────────── */
