@@ -180,20 +180,13 @@
   .serve-hint.ready  { color: #27ae60; }
   .serve-hint.needs  { color: #e67e22; }
   .serve-hint.over   { color: #e74c3c; }
-  .btn-serve {
-    background: #d4601a; box-shadow: 0 5px 0 #9a3f0a;
-    color: white; border: none; border-radius: 999px;
-    padding: 12px 32px; font-size: 1.05em; font-weight: 900;
-    cursor: pointer; font-family: inherit; letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
   .btn-discard {
     background: #7a6255; box-shadow: 0 5px 0 #5a4840;
     color: white; border: none; border-radius: 999px;
     padding: 12px 24px; font-size: 1.05em; font-weight: 800;
     cursor: pointer; font-family: inherit; letter-spacing: 0.03em;
   }
-  .btn-serve:active, .btn-discard:active { transform: translateY(5px); box-shadow: none; }
+  .btn-discard:active { transform: translateY(5px); box-shadow: none; }
 
   /* ── PAUSE BUTTON ────────────────────────────────────────────────────────── */
   .btn-pause {
@@ -390,16 +383,6 @@
     width: 72%; opacity: 0.92;
     filter: drop-shadow(0 2px 8px rgba(0,0,0,0.6));
   }
-
-  /* ── LEVELS BUTTON (sidebar) ─────────────────────────────────────────────── */
-  .btn-levels {
-    flex: 1;
-    background: #7b2f9e; color: white; border: none;
-    border-radius: 999px; padding: 7px 10px; font-size: 0.82em;
-    font-weight: 800; cursor: pointer; font-family: inherit;
-    box-shadow: 0 4px 0 #4a1060; letter-spacing: 0.02em;
-  }
-  .btn-levels:active { transform: translateY(4px); box-shadow: none; }
 
   /* ── LEVEL GOAL BAR (sidebar) ────────────────────────────────────────────── */
   .level-goal-bar {
@@ -656,7 +639,6 @@
   <div class="left-panel">
     <div class="hand" id="hand"></div>
     <div class="actions">
-      <button class="btn-serve"   onclick="serve()">🍽️ Serve!</button>
       <button class="btn-discard" onclick="discardSelected()">🗑️ Discard Selected</button>
     </div>
     <div class="serve-hint" id="serve-hint"></div>
@@ -673,7 +655,6 @@
       <div class="sidebar-row">
         <button class="btn-new"   onclick="newGame()">🔄 New Game</button>
         <button class="btn-pause" id="btn-pause" onclick="togglePause()">⏸️ Pause</button>
-        <button class="btn-levels" onclick="openLevelSelect()">🏆 Levels</button>
       </div>
       <div id="level-goal-bar" class="level-goal-bar" style="display:none"></div>
     </aside>
@@ -1039,7 +1020,7 @@ function updateServeHint() {
     el.textContent = `${have}/${need} selected — need ${need - have} more`;
     el.className = "serve-hint needs";
   } else if (have === need) {
-    el.textContent = `✅ ${have}/${need} ready — hit Serve!`;
+    el.textContent = `✅ ${have}/${need} ready!`;
     el.className = "serve-hint ready";
   } else {
     el.textContent = `⚠️ Too many selected (${have}/${need})`;
@@ -1062,11 +1043,21 @@ function selectCustomer(idx) {
   }
   renderCustomers();
   updateServeHint();
+  checkAutoServe();
 }
 
 function toggleIng(idx) {
   selectedIdxs.has(idx) ? selectedIdxs.delete(idx) : selectedIdxs.add(idx);
   renderHand();
+  checkAutoServe();
+}
+
+// Auto-serve: once the selected ingredients exactly fill the selected
+// customer's recipe slot count, attempt to serve immediately.
+function checkAutoServe() {
+  if (!gameActive || paused || selectedCustomer === null) return;
+  const slot = activeCustomers[selectedCustomer];
+  if (selectedIdxs.size === slot.dish.recipe.length) serve();
 }
 
 // ── SERVE ─────────────────────────────────────────────────────────────────────
