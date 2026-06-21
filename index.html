@@ -248,6 +248,9 @@
     .right-panel { flex: none; width: 100%; }
     .sidebar { flex-direction: row; flex-wrap: wrap; max-width: none; justify-content: space-between; align-items: center; }
 
+    /* Shift customer cards (portrait + overlay text below it) up by 10% */
+    .customers { transform: translateY(-10%); }
+
     /* Card border wraps only the portrait; info flows below outside the card */
     .customer-card {
       overflow: visible;
@@ -534,10 +537,10 @@
           <h3>👥 Customers & Abilities</h3>
           <p>Each customer has a unique ability. Some boost earnings, others change the rules. Serve them in the right order to chain bonuses!</p>
           <div class="card-row">
-            <img src="images/Customers/mini/001_Cowboy_Carl.png" alt="Cowboy Carl">
-            <img src="images/Customers/mini/004_The_King.png" alt="The King">
-            <img src="images/Customers/mini/007_Mermaid_Marina.png" alt="Mermaid Marina">
-            <img src="images/Customers/mini/013_Robot_3000.png" alt="Robot 3000">
+            <img src="images/customers/classic/CowboyCarl.png" alt="Cowboy Carl">
+            <img src="images/customers/classic/TheKing.png" alt="The King">
+            <img src="images/customers/classic/MermaidMarina.png" alt="Mermaid Marina">
+            <img src="images/customers/classic/Robot3000.png" alt="Robot 3000">
           </div>
         </div>
         <div class="instr-card">
@@ -556,8 +559,8 @@
           <h3>⭐ Special Wilds</h3>
           <p><strong>Astronaut Al</strong> hides one recipe slot as ❓ — any ingredient fits. <strong>Uni the Unicorn</strong> turns a random card into a Wildcard Delivery Truck!</p>
           <div class="card-row">
-            <img src="images/Customers/mini/014_Astronaut_Al.png" alt="Astronaut Al">
-            <img src="images/Customers/mini/015_Uriel_the_Unicorn.png" alt="Uni the Unicorn">
+            <img src="images/customers/classic/AstronautAl.png" alt="Astronaut Al">
+            <img src="images/customers/classic/UrielUnicorn.png" alt="Uni the Unicorn">
           </div>
         </div>
       </div>
@@ -586,10 +589,10 @@
           <h3>👥 Clientes y Habilidades</h3>
           <p>Cada cliente tiene una habilidad única. Algunos aumentan las ganancias, otros cambian las reglas. ¡Sírvelos en el orden correcto para encadenar bonificaciones!</p>
           <div class="card-row">
-            <img src="images/Customers/mini/001_Cowboy_Carl.png" alt="Cowboy Carl">
-            <img src="images/Customers/mini/004_The_King.png" alt="El Rey">
-            <img src="images/Customers/mini/007_Mermaid_Marina.png" alt="Mermaid Marina">
-            <img src="images/Customers/mini/013_Robot_3000.png" alt="Robot 3000">
+            <img src="images/customers/classic/CowboyCarl.png" alt="Cowboy Carl">
+            <img src="images/customers/classic/TheKing.png" alt="El Rey">
+            <img src="images/customers/classic/MermaidMarina.png" alt="Mermaid Marina">
+            <img src="images/customers/classic/Robot3000.png" alt="Robot 3000">
           </div>
         </div>
         <div class="instr-card">
@@ -608,8 +611,8 @@
           <h3>⭐ Comodines Especiales</h3>
           <p><strong>Astronauta Al</strong> oculta un slot de receta como ❓ — cualquier ingrediente funciona. <strong>Uriel la Unicornio</strong> convierte una carta al azar en un Comodín Camión de Reparto.</p>
           <div class="card-row">
-            <img src="images/Customers/mini/014_Astronaut_Al.png" alt="Astronauta Al">
-            <img src="images/Customers/mini/015_Uriel_the_Unicorn.png" alt="Uriel la Unicornio">
+            <img src="images/customers/classic/AstronautAl.png" alt="Astronauta Al">
+            <img src="images/customers/classic/UrielUnicorn.png" alt="Uriel la Unicornio">
           </div>
         </div>
       </div>
@@ -716,22 +719,22 @@ const dishes = [
 
 // ── CUSTOMERS with special abilities ──────────────────────────────────────────
 const customerList = [
-  { img:"mini/004_The_King.png",          name:"The King",         ability:"kingsOrder",    abilityText:"Serve first after he arrives: +$25! Each skip costs -$5." },
-  { img:"mini/001_Cowboy_Carl.png",       name:"Cowboy Carl",      ability:"sideBet",       abilityText:"When served, your NEXT correct order earns +[his dish price] extra!" },
-  { img:"mini/005_Wizard_Zora.png",       name:"Wizard Zorp",      ability:"mystery",       abilityText:"One ingredient is hidden — guess it!" },
-  { img:"mini/006_Captain_Strong.png",    name:"Captain Strong",   ability:"shield",        abilityText:"While he waits, no other customer loses patience!" },
-  { img:"mini/007_Mermaid_Marina.png",    name:"Mermaid Marina",   ability:"tidalBounty",   abilityText:"Each ingredient you discard while she waits adds +$5 to her payout!" },
-  { img:"mini/008_Panda_Pillie.png",      name:"Panda Pete",       ability:"bambooStash",   abilityText:"When served, adds 2 Delivery Truck wilds to your hand!" },
-  { img:"mini/011_Count_Fangula.png",     name:"Count Fangula",    ability:"firstBite",     abilityText:"Served first this game? Earns DOUBLE!" },
-  { img:"mini/012_Princess_Sparkle.png",  name:"Princess Sparkle", ability:"vipRush",       abilityText:"Tap her to start a 15s clock! Serve in time: +$20. Then -$1/sec." },
-  { img:"mini/013_Robot_3000.png",        name:"Robot 3000",       ability:"flawless",      abilityText:"No wrong orders all game? Earn +$25 bonus when you serve Robot!" },
-  { img:"mini/009_Fox_Fred.png",          name:"Foxy",             ability:"luckyDraw",     abilityText:"Serve Foxy → draw 2 bonus ingredients!" },
-  { img:"mini/014_Astronaut_Al.png",      name:"Astronaut Al",     ability:"wildCard",      abilityText:"One recipe slot is ❓ — any ingredient fits!" },
-  { img:"mini/010_Dragon_Dave.png",       name:"Dragon Dave",      ability:"fury",          abilityText:"Each skip costs him 2 patience — but earns you +$8 more!" },
-  { img:"mini/002_Surfer_Dude.png",       name:"Surfer Dude",      ability:"freshWave",     abilityText:"When served, your entire hand refreshes with new ingredients!" },
-  { img:"mini/003_Rockstar_Rex.png",      name:"Rockstar Rex",     ability:"encore",        abilityText:"After serving Rex, your NEXT correct order earns DOUBLE!" },
-  { img:"mini/015_Uriel_the_Unicorn.png", name:"Uni the Unicorn",  ability:"magicHand",     abilityText:"Serve Uni → one ingredient becomes a Wildcard!" },
-  { img:"mini/016_Grandma_Gin.png",       name:"Grandma",          ability:"patientTipper", abilityText:"Never leaves! Tips +$5 per customer served before her." },
+  { img:"classic/TheKing.png",        name:"The King",         ability:"kingsOrder",    abilityText:"Serve first after he arrives: +$25! Each skip costs -$5." },
+  { img:"classic/CowboyCarl.png",     name:"Cowboy Carl",      ability:"sideBet",       abilityText:"When served, your NEXT correct order earns +[his dish price] extra!" },
+  { img:"classic/WizardZorp.png",     name:"Wizard Zorp",      ability:"mystery",       abilityText:"One ingredient is hidden — guess it!" },
+  { img:"classic/CaptainStrong.png",  name:"Captain Strong",   ability:"shield",        abilityText:"While he waits, no other customer loses patience!" },
+  { img:"classic/MermaidMarina.png",  name:"Mermaid Marina",   ability:"tidalBounty",   abilityText:"Each ingredient you discard while she waits adds +$5 to her payout!" },
+  { img:"classic/PandaPete.png",      name:"Panda Pete",       ability:"bambooStash",   abilityText:"When served, adds 2 Delivery Truck wilds to your hand!" },
+  { img:"classic/CountFangula.png",   name:"Count Fangula",    ability:"firstBite",     abilityText:"Served first this game? Earns DOUBLE!" },
+  { img:"classic/PrincessSparkle.png",name:"Princess Sparkle", ability:"vipRush",       abilityText:"Tap her to start a 15s clock! Serve in time: +$20. Then -$1/sec." },
+  { img:"classic/Robot3000.png",      name:"Robot 3000",       ability:"flawless",      abilityText:"No wrong orders all game? Earn +$25 bonus when you serve Robot!" },
+  { img:"classic/FoxFred.png",        name:"Foxy",             ability:"luckyDraw",     abilityText:"Serve Foxy → draw 2 bonus ingredients!" },
+  { img:"classic/AstronautAl.png",    name:"Astronaut Al",     ability:"wildCard",      abilityText:"One recipe slot is ❓ — any ingredient fits!" },
+  { img:"classic/DragonDave.png",     name:"Dragon Dave",      ability:"fury",          abilityText:"Each skip costs him 2 patience — but earns you +$8 more!" },
+  { img:"classic/SurferDude.png",     name:"Surfer Dude",      ability:"freshWave",     abilityText:"When served, your entire hand refreshes with new ingredients!" },
+  { img:"classic/RockStarRex.png",    name:"Rockstar Rex",     ability:"encore",        abilityText:"After serving Rex, your NEXT correct order earns DOUBLE!" },
+  { img:"classic/UrielUnicorn.png",   name:"Uni the Unicorn",  ability:"magicHand",     abilityText:"Serve Uni → one ingredient becomes a Wildcard!" },
+  { img:"classic/GradnmaGin.png",     name:"Grandma",          ability:"patientTipper", abilityText:"Never leaves! Tips +$5 per customer served before her." },
 ];
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
@@ -963,7 +966,7 @@ function renderCustomers() {
     }).join("");
 
     div.innerHTML = `
-      <img class="c-img" src="images/Customers/${customer.img}" alt="${customer.name}">
+      <img class="c-img" src="images/customers/${customer.img}" alt="${customer.name}">
       <div class="c-overlay">
         <div class="c-ability">${customer.abilityText}</div>
         <div class="c-dish">${dish.emoji} ${dish.name}</div>
