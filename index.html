@@ -248,8 +248,8 @@
     .right-panel { flex: none; width: 100%; }
     .sidebar { flex-direction: row; flex-wrap: wrap; max-width: none; justify-content: space-between; align-items: center; }
 
-    /* Shift customer cards (portrait + overlay text below it) up by 10% */
-    .customers { transform: translateY(-10%); }
+    /* Shift customer cards (portrait + overlay text below it) up by 5% */
+    .customers { transform: translateY(-5%); }
 
     /* Card border wraps only the portrait; info flows below outside the card */
     .customer-card {
@@ -278,7 +278,8 @@
       box-shadow: 0 0 0 3px #27ae60;
     }
 
-    /* Overlay leaves absolute positioning and sits below the portrait */
+    /* Overlay leaves absolute positioning and sits below the portrait,
+       shifted up 15% of its own height so it overlaps the portrait's bottom edge */
     .c-overlay {
       position: relative;
       bottom: auto; left: auto; right: auto;
@@ -286,7 +287,17 @@
       border-radius: 0 0 10px 10px;
       padding: 5px 6px 5px;
       margin-top: 0;
+      transform: translateY(-15%);
     }
+
+    /* Reorder overlay contents so ingredients lead, then price, ability, stars.
+       display: contents un-wraps the price/stars row so each piece can get its own order. */
+    .c-dish-row { display: contents; }
+    .c-dish        { order: 0; }
+    .recipe-items  { order: 1; }
+    .c-price       { order: 2; }
+    .c-ability     { order: 3; }
+    .c-patience    { order: 4; }
   }
 
   /* ── WELCOME OVERLAY ──────────────────────────────────────────────────────── */
