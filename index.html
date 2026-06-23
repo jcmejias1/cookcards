@@ -186,7 +186,6 @@
   .recipe-ing-img { width: 11px; height: 11px; object-fit: contain; vertical-align: middle; }
 
   /* ── ACTION BAR ───────────────────────────────────────────────────────────── */
-  .actions { display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; }
   .serve-hint {
     min-height: 1.4em; text-align: center;
     font-size: 0.82em; font-weight: 600; color: #555;
@@ -196,12 +195,12 @@
   .serve-hint.needs  { color: #e67e22; }
   .serve-hint.over   { color: #e74c3c; }
   .btn-discard {
-    background: #7a6255; box-shadow: 0 5px 0 #5a4840;
+    background: #7a6255; box-shadow: 0 4px 0 #5a4840;
     color: white; border: none; border-radius: 999px;
-    padding: 12px 24px; font-size: 1.05em; font-weight: 800;
-    cursor: pointer; font-family: inherit; letter-spacing: 0.03em;
+    padding: 7px 12px; font-size: 0.82em; font-weight: 800;
+    cursor: pointer; font-family: inherit; letter-spacing: 0.02em;
   }
-  .btn-discard:active { transform: translateY(5px); box-shadow: none; }
+  .btn-discard:active { transform: translateY(4px); box-shadow: none; }
 
   /* Legacy class kept but no longer used for pause — see renderPausedCards() */
   .blacked-out { filter: brightness(0.03); pointer-events: none; transition: filter 0.4s; }
@@ -231,7 +230,6 @@
 
   /* ── STATUS ───────────────────────────────────────────────────────────────── */
   .status {
-    flex: 1 1 100%;
     text-align: center; font-size: 0.98em; font-weight: 700;
     color: #3d2b1f; min-height: 1.6em;
     background: rgba(253,243,227,0.75); border-radius: 999px;
@@ -258,20 +256,14 @@
     .right-panel { display: contents; }
     .sidebar     { display: contents; }
 
-    /* Stacking order: top bar (timer/score/menu) → goal bar → ingredients →
-       discard (+ status text alongside it) → serve hint → customers */
+    /* Stacking order: top bar (discard/timer/score/menu) → goal bar →
+       ingredients → status/serve hint → customers */
     .sidebar-row    { order: 1; align-items: center; }
     .level-goal-bar { order: 2; }
     .hand           { order: 3; }
-    .actions        { order: 4; justify-content: flex-start; }
+    .status         { order: 4; }
     .serve-hint     { order: 5; }
     .customers      { order: 6; }
-
-    /* Status text sits beside the discard button instead of on its own row */
-    .status {
-      flex: 1 1 auto; min-height: auto; text-align: left;
-      font-size: 0.78em; padding: 5px 10px;
-    }
 
     /* Shift customer cards (portrait + overlay text below it) up by 5% */
     .customers { transform: translateY(-5%); }
@@ -660,10 +652,7 @@
   <!-- Left panel: big ingredient grid, then action buttons and status below -->
   <div class="left-panel">
     <div class="hand" id="hand"></div>
-    <div class="actions">
-      <button class="btn-discard" onclick="discardSelected()">🗑️ Discard Selected</button>
-      <div class="status" id="status">Pick a customer, then tap their ingredients!</div>
-    </div>
+    <div class="status" id="status">Pick a customer, then tap their ingredients!</div>
     <div class="serve-hint" id="serve-hint"></div>
   </div>
 
@@ -671,6 +660,7 @@
   <div class="right-panel">
     <aside class="sidebar">
       <div class="sidebar-row">
+        <button class="btn-discard" onclick="discardSelected()">🗑️ Discard</button>
         <div class="timer" id="timer">⏱️ 2:30</div>
         <div class="score">💰 <span id="score">$0</span></div>
         <div class="menu-wrap" id="menu-wrap">
