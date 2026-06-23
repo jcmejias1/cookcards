@@ -1495,8 +1495,7 @@ function startFreePlay() {
 }
 
 function updateScoreDisplay() {
-  const lv = currentLevel ? LEVELS.find(l => l.level === currentLevel) : null;
-  document.getElementById("score").textContent = lv ? `$${lv.goal}/$${score}` : `$${score}`;
+  document.getElementById("score").textContent = `$${score}`;
 }
 
 // ── GOAL BAR ─────────────────────────────────────────────────────────────────
