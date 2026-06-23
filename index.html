@@ -61,14 +61,29 @@
     border: 2px solid #c9973d;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   }
-  .btn-new {
-    flex: 1;
+  /* ── MENU BUTTON + DROPDOWN ──────────────────────────────────────────────── */
+  .menu-wrap { position: relative; }
+  .btn-menu {
     background: #5a8f5a; color: white; border: none;
-    border-radius: 999px; padding: 7px 10px; font-size: 0.82em;
+    border-radius: 999px; padding: 7px 14px; font-size: 0.82em;
     font-weight: 800; cursor: pointer; font-family: inherit;
     box-shadow: 0 4px 0 #38623a; letter-spacing: 0.02em;
   }
-  .btn-new:active { transform: translateY(4px); box-shadow: none; }
+  .btn-menu:active { transform: translateY(4px); box-shadow: none; }
+  .menu-dropdown {
+    display: none; flex-direction: column;
+    position: absolute; top: calc(100% + 6px); right: 0; z-index: 100;
+    background: #1a1a2e; border-radius: 12px; min-width: 190px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4); overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .menu-dropdown.open { display: flex; }
+  .menu-item {
+    background: transparent; color: white; border: none;
+    text-align: left; padding: 10px 14px; font-size: 0.85em;
+    font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .menu-item:hover { background: rgba(255,255,255,0.1); }
 
   /* ── CUSTOMER CARDS (right panel — 3 in a row, portrait TCG ratio) ─────── */
   .customers {
@@ -188,16 +203,6 @@
   }
   .btn-discard:active { transform: translateY(5px); box-shadow: none; }
 
-  /* ── PAUSE BUTTON ────────────────────────────────────────────────────────── */
-  .btn-pause {
-    flex: 1;
-    background: #c9973d; color: white; border: none;
-    border-radius: 999px; padding: 7px 10px; font-size: 0.82em;
-    font-weight: 800; cursor: pointer; font-family: inherit;
-    box-shadow: 0 4px 0 #9a6f20; letter-spacing: 0.02em;
-  }
-  .btn-pause:active { transform: translateY(4px); box-shadow: none; }
-
   /* Legacy class kept but no longer used for pause — see renderPausedCards() */
   .blacked-out { filter: brightness(0.03); pointer-events: none; transition: filter 0.4s; }
 
@@ -244,9 +249,23 @@
   /* ── RESPONSIVE: narrow screens ───────────────────────────────────────────── */
   @media (max-width: 700px) {
     .game-layout { flex-direction: column; gap: 8px; }
-    .left-panel { width: 100%; flex: none; }
-    .right-panel { flex: none; width: 100%; }
-    .sidebar { flex-direction: row; flex-wrap: wrap; max-width: none; justify-content: space-between; align-items: center; }
+
+    /* Unwrap the panel/sidebar containers so every piece becomes a direct
+       flex item of .game-layout — lets us reorder freely below regardless
+       of where each element lives in the markup. */
+    .left-panel  { display: contents; }
+    .right-panel { display: contents; }
+    .sidebar     { display: contents; }
+
+    /* Stacking order: top bar (timer/score/menu) → goal bar → ingredients →
+       discard → serve hint/status → customers */
+    .sidebar-row    { order: 1; align-items: center; }
+    .level-goal-bar { order: 2; }
+    .hand           { order: 3; }
+    .actions        { order: 4; }
+    .serve-hint     { order: 5; }
+    .status         { order: 6; }
+    .customers      { order: 7; }
 
     /* Shift customer cards (portrait + overlay text below it) up by 5% */
     .customers { transform: translateY(-5%); }
@@ -320,17 +339,22 @@
   @keyframes wlFadeIn  { from { opacity:0; transform:scale(0.88); } to { opacity:1; transform:scale(1); } }
   @keyframes wlFadeOut { from { opacity:1; } to { opacity:0; } }
 
-  #welcome-instr-phase {
-    display: none;
-    flex-direction: column; align-items: center;
-    width: min(780px, 96vw); max-height: 96vh; overflow-y: auto;
-    background: rgba(20,10,5,0.82);
+  /* ── INSTRUCTIONS MODAL (opened from the menu, any time) ─────────────────── */
+  .instr-modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,0.82); align-items: flex-start; justify-content: center;
+    padding: 16px; overflow-y: auto;
+  }
+  .instr-modal-overlay.active { display: flex; }
+  .instr-modal {
+    display: flex; flex-direction: column; align-items: center;
+    width: min(780px, 96vw); margin: auto;
+    background: rgba(20,10,5,0.92);
     border-radius: 22px; padding: 32px 36px 24px;
-    box-shadow: 0 12px 60px rgba(0,0,0,0.7);
-    animation: wlFadeIn 0.5s ease forwards;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.7);
     gap: 18px;
   }
-  #welcome-instr-phase img.instr-logo {
+  .instr-modal .instr-logo {
     width: min(260px, 55vw);
     filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
     margin-bottom: 4px;
@@ -361,29 +385,6 @@
   .instr-card .card-row .mini-emoji {
     font-size: 1.8em; line-height: 1;
   }
-  .instr-cta {
-    color: #fff; font-size: 0.9em; font-weight: 800;
-    background: rgba(212,96,26,0.88); border-radius: 999px;
-    padding: 12px 32px; letter-spacing: 0.05em;
-    animation: ctaPulse 1.5s ease-in-out infinite;
-    cursor: pointer; border: none; font-family: inherit;
-    margin-top: 4px;
-  }
-  @keyframes ctaPulse {
-    0%,100% { box-shadow: 0 0 0 0 rgba(212,96,26,0.5); }
-    50%      { box-shadow: 0 0 0 10px rgba(212,96,26,0); }
-  }
-  .instr-lang-row {
-    display: flex; justify-content: flex-end; width: 100%; margin-bottom: -8px;
-  }
-  .btn-lang {
-    background: rgba(255,255,255,0.12); color: #ffe8b0;
-    border: 1px solid rgba(255,232,176,0.35); border-radius: 999px;
-    padding: 5px 14px; font-size: 0.78em; font-weight: 800;
-    cursor: pointer; font-family: inherit; letter-spacing: 0.04em;
-    transition: background 0.2s;
-  }
-  .btn-lang:hover { background: rgba(255,255,255,0.22); }
 
   /* ── TCG CARD BACK (shown when paused) ────────────────────────────────────── */
   .card-back {
@@ -519,11 +520,12 @@
   <div id="welcome-logo-phase">
     <img src="images/assets/CookCardsLogo.png" alt="Cook Cards">
   </div>
-  <div id="welcome-instr-phase">
+</div>
+
+<!-- Instructions Modal (opened from the menu, any time) -->
+<div class="instr-modal-overlay" id="instr-modal-overlay">
+  <div class="instr-modal">
     <img class="instr-logo" src="images/assets/CookCardsLogo.png" alt="Cook Cards">
-    <div class="instr-lang-row">
-      <button class="btn-lang" id="btn-lang">🌐 Español</button>
-    </div>
 
     <!-- ── ENGLISH ── -->
     <div id="instr-en">
@@ -629,7 +631,7 @@
       </div>
     </div>
 
-    <button class="instr-cta" id="instr-start-btn">▶ Click or press Enter to Start!</button>
+    <button class="btn-modal-close" onclick="closeInstructions()">✕ Close</button>
   </div>
 </div>
 
@@ -665,10 +667,15 @@
       <div class="sidebar-row">
         <div class="timer" id="timer">⏱️ 2:30</div>
         <div class="score">💰 $<span id="score">0</span></div>
-      </div>
-      <div class="sidebar-row">
-        <button class="btn-new"   onclick="newGame()">🔄 New Game</button>
-        <button class="btn-pause" id="btn-pause" onclick="togglePause()">⏸️ Pause</button>
+        <div class="menu-wrap" id="menu-wrap">
+          <button class="btn-menu" id="btn-menu" onclick="toggleMenu()">☰ Menu</button>
+          <div class="menu-dropdown" id="menu-dropdown">
+            <button class="menu-item" onclick="closeMenu(); newGame();">🔄 New Game</button>
+            <button class="menu-item" onclick="closeMenu(); openInstructions();">📖 Instructions</button>
+            <button class="menu-item" id="btn-pause" onclick="closeMenu(); togglePause();">⏸️ Pause</button>
+            <button class="menu-item" id="btn-lang" onclick="closeMenu(); toggleLang();">🌐 Español</button>
+          </div>
+        </div>
       </div>
       <div id="level-goal-bar" class="level-goal-bar" style="display:none"></div>
     </aside>
@@ -1325,47 +1332,52 @@ function renderPausedCards() {
 
 // ── WELCOME SEQUENCE ──────────────────────────────────────────────────────────
 (function initWelcome() {
-  const overlay   = document.getElementById("welcome-overlay");
-  const logoPhase = document.getElementById("welcome-logo-phase");
-  const instrPhase= document.getElementById("welcome-instr-phase");
-  const startBtn  = document.getElementById("instr-start-btn");
-  const langBtn   = document.getElementById("btn-lang");
-  const enDiv     = document.getElementById("instr-en");
-  const esDiv     = document.getElementById("instr-es");
-  let lang = "en";
-
-  langBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    lang = (lang === "en") ? "es" : "en";
-    enDiv.style.display = (lang === "en") ? "" : "none";
-    esDiv.style.display = (lang === "es") ? "" : "none";
-    langBtn.textContent = (lang === "en") ? "🌐 Español" : "🌐 English";
-    startBtn.textContent = (lang === "en") ? "▶ Click or press Enter to Start!" : "▶ ¡Clic o presiona Enter para Empezar!";
-  });
-
-  function startGame() {
+  const overlay = document.getElementById("welcome-overlay");
+  setTimeout(() => {
     overlay.classList.add("fade-out");
     setTimeout(() => overlay.remove(), 650);
-  }
-
-  function showInstructions() {
-    logoPhase.classList.add("fade-out");
-    setTimeout(() => {
-      logoPhase.style.display = "none";
-      instrPhase.style.display = "flex";
-    }, 500);
-  }
-
-  setTimeout(showInstructions, 2200);
-
-  startBtn.addEventListener("click", startGame);
-  overlay.addEventListener("click", (e) => {
-    if (instrPhase.style.display === "flex" && e.target !== langBtn) startGame();
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && instrPhase.style.display === "flex") startGame();
-  });
+  }, 2200);
 })();
+
+// ── LANGUAGE TOGGLE (instructions modal) ─────────────────────────────────────
+let uiLang = "en";
+function toggleLang() {
+  uiLang = (uiLang === "en") ? "es" : "en";
+  document.getElementById("instr-en").style.display = (uiLang === "en") ? "" : "none";
+  document.getElementById("instr-es").style.display = (uiLang === "es") ? "" : "none";
+  document.getElementById("btn-lang").textContent = (uiLang === "en") ? "🌐 Español" : "🌐 English";
+}
+
+// ── INSTRUCTIONS MODAL ───────────────────────────────────────────────────────
+let instrModalWasAutopaused = false;
+function openInstructions() {
+  instrModalWasAutopaused = false;
+  if (gameActive && !paused) {
+    togglePause();
+    instrModalWasAutopaused = true;
+  }
+  document.getElementById("instr-modal-overlay").classList.add("active");
+}
+
+function closeInstructions() {
+  document.getElementById("instr-modal-overlay").classList.remove("active");
+  if (instrModalWasAutopaused && gameActive && paused) {
+    togglePause();
+  }
+  instrModalWasAutopaused = false;
+}
+
+// ── MENU DROPDOWN ─────────────────────────────────────────────────────────────
+function toggleMenu() {
+  document.getElementById("menu-dropdown").classList.toggle("open");
+}
+function closeMenu() {
+  document.getElementById("menu-dropdown").classList.remove("open");
+}
+document.addEventListener("click", (e) => {
+  const wrap = document.getElementById("menu-wrap");
+  if (wrap && !wrap.contains(e.target)) closeMenu();
+});
 
 // ── LEVELS & ACHIEVEMENTS ────────────────────────────────────────────────────
 const LEVELS = [
