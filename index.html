@@ -402,7 +402,8 @@
     background: rgba(253,243,227,0.1); border: 1px solid rgba(255,255,255,0.2);
     border-radius: 10px; padding: 6px 10px;
   }
-  .goal-label { font-size: 0.82em; font-weight: 800; color: #000; margin-bottom: 4px; }
+  .goal-label { font-size: 0.82em; font-weight: 800; color: #000; margin-bottom: 4px; cursor: pointer; }
+  .goal-label:hover { text-decoration: underline; }
   .goal-track { background: rgba(255,255,255,0.12); border-radius: 999px; height: 8px; overflow: hidden; }
   .goal-fill  { height: 100%; border-radius: 999px; transition: width 0.3s; }
   .goal-fill-progress { background: linear-gradient(90deg, #e67e22, #f39c12); }
@@ -1421,7 +1422,7 @@ function saveLevelData() {
 function openLevelSelect() {
   // Auto-pause the game if running
   levelModalWasAutopaused = false;
-  if (!paused && !gameOver) {
+  if (gameActive && !paused) {
     togglePause();
     levelModalWasAutopaused = true;
   }
@@ -1431,7 +1432,7 @@ function openLevelSelect() {
 
 function closeLevelSelect() {
   document.getElementById("level-modal-overlay").classList.remove("active");
-  if (levelModalWasAutopaused && paused && !gameOver) {
+  if (levelModalWasAutopaused && paused && gameActive) {
     togglePause();
   }
   levelModalWasAutopaused = false;
@@ -1515,7 +1516,7 @@ function renderLevelGoalBar() {
 
   bar.style.display = "block";
   bar.innerHTML = `
-    <div class="goal-label">Level ${lv.level}: ${lv.title} &nbsp;—&nbsp; Goal $${lv.goal}</div>
+    <div class="goal-label" onclick="openLevelSelect()">Level ${lv.level}: ${lv.title} &nbsp;—&nbsp; Goal $${lv.goal}</div>
     <div class="goal-track">
       <div class="goal-fill goal-fill-progress" style="width:${pct}%"></div>
     </div>`;
@@ -1544,7 +1545,7 @@ function levelCleared() {
   const bar = document.getElementById("level-goal-bar");
   bar.style.display = "block";
   bar.innerHTML = `
-    <div class="goal-label">Level ${lv.level}: ${lv.title}</div>
+    <div class="goal-label" onclick="openLevelSelect()">Level ${lv.level}: ${lv.title}</div>
     <div class="goal-track">
       <div class="goal-fill goal-fill-done" style="width:100%"></div>
     </div>
